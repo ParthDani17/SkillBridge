@@ -27,3 +27,6 @@ connectDB()
 
 import userRouter from "./routes/user.routes.js";
 app.use("/api/v1/users", userRouter);
+
+import profileRouter from "./routes/profile.routes.js";
+app.use("/api/v1/profile", profileRouter);
