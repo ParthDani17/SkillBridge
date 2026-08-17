@@ -3,8 +3,6 @@ import {registerUser,loginUser,logoutUser,refreshAccessToken} from "../controlle
 import {upload} from "../middlewares/multer.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
-
 const router = Router();
 
 router.route("/register").post(upload.fields([
