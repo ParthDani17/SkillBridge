@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -108,4 +109,74 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-export { registerUser, loginUser };
+const logoutUser = asyncHandler(async (req, res) => {
+
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: { // remove this field from the document
+                refreshToken: 1
+            }
+        },
+        {
+            new: true
+        }
+    );
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "User logged out successfully"
+            )
+        );
+});
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+
+    const incomingRefreshToken = req.body.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(401, "Refresh token is required");
+    }
+
+    try {
+
+        const decodedToken = jwt.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        );
+
+        const user = await User.findById(decodedToken._id);
+
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh token");
+        }
+
+        if (incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(401, "Refresh token is expired or invalid");
+        }
+
+        const newAccessToken = user.generateAccessToken();
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                {
+                    accessToken: newAccessToken
+                },
+                "Access token refreshed successfully"
+            )
+        );
+
+    } catch (error) {
+        throw new ApiError(
+            401,
+            error?.message || "Invalid refresh token"
+        );
+    }
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken };

@@ -1,8 +1,9 @@
 import {Router} from "express";
-import {registerUser,loginUser} from "../controllers/user.controller.js"; 
+import {registerUser,loginUser,logoutUser,refreshAccessToken} from "../controllers/user.controller.js"; 
 import {upload} from "../middlewares/multer.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -27,5 +28,12 @@ router.route("/test-auth").get(
         );
     }
 );
+
+router.route("/logout").post(
+    verifyJWT,
+    logoutUser
+);
+
+router.route("/refresh-token").post(refreshAccessToken);
 
 export default router;
