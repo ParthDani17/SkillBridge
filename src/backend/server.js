@@ -30,3 +30,6 @@ app.use("/api/v1/users", userRouter);
 
 import profileRouter from "./routes/profile.routes.js";
 app.use("/api/v1/profile", profileRouter);
+
+import skillRouter from "./routes/skill.routes.js";
+app.use("/api/v1/skills", skillRouter);
