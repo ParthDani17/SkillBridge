@@ -88,4 +88,39 @@ const updateSkill = asyncHandler(async (req, res) => {
     );
 });
 
-export { addSkill, updateSkill };
+const deleteSkill = asyncHandler(async (req, res) => {
+
+    const skill = await Skill.findById(req.params.id);
+
+    if (!skill) {
+        throw new ApiError(404, "Skill not found");
+    }
+
+    const profile = await Profile.findOne({
+        userId: req.user._id
+    });
+
+    if (!profile) {
+        throw new ApiError(404, "Profile not found");
+    }
+
+    // Check ownership
+    if (skill.profileId.toString() !== profile._id.toString()) {
+        throw new ApiError(
+            403,
+            "You are not allowed to delete this skill"
+        );
+    }
+
+    await Skill.findByIdAndDelete(req.params.id);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            null,
+            "Skill deleted successfully"
+        )
+    );
+});
+
+export { addSkill, updateSkill, deleteSkill };
