@@ -42,3 +42,6 @@ app.use(
     "/api/v1/learning-requests",
     learningRequestRoutes
 );
+
+import sessionRouter from "./routes/session.routes.js";
+app.use("/api/v1/sessions", sessionRouter);
