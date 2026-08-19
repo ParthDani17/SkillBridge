@@ -45,3 +45,6 @@ app.use(
 
 import sessionRouter from "./routes/session.routes.js";
 app.use("/api/v1/sessions", sessionRouter);
+
+import reviewRouter from "./routes/review.routes.js";
+app.use("/api/v1/reviews", reviewRouter);
