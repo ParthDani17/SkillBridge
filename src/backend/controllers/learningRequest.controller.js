@@ -2,7 +2,7 @@ import LearningRequest from "../models/LearningRequest.js";
 import User from "../models/User.js";
 import Profile from "../models/Profile.js";
 import Skill from "../models/Skill.js";
-
+import Notification from "../models/Notification.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -90,6 +90,11 @@ const createLearningRequest = asyncHandler(async (req, res) => {
         message
     });
 
+    await Notification.create({
+        userId: mentorId,
+        message: "You have received a new learning request"
+    });
+
     return res.status(201).json(
         new ApiResponse(
             201,
@@ -173,6 +178,11 @@ const acceptLearningRequest = asyncHandler(async (req, res) => {
 
     await learningRequest.save();
 
+    await Notification.create({
+        userId: learningRequest.studentId,
+        message: "Your learning request has been accepted"
+    });
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -226,6 +236,11 @@ const rejectLearningRequest = asyncHandler(async (req, res) => {
 
     await learningRequest.save();
 
+    await Notification.create({
+        userId: learningRequest.studentId,
+        message: "Your learning request has been rejected"
+    });
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -278,6 +293,11 @@ const cancelLearningRequest = asyncHandler(async (req, res) => {
     learningRequest.status = "cancelled";
 
     await learningRequest.save();
+
+    await Notification.create({
+        userId: learningRequest.mentorId,
+        message: "A student has cancelled the learning request"
+    });
 
     return res.status(200).json(
         new ApiResponse(

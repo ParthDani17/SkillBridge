@@ -48,3 +48,9 @@ app.use("/api/v1/sessions", sessionRouter);
 
 import reviewRouter from "./routes/review.routes.js";
 app.use("/api/v1/reviews", reviewRouter);
+
+import notificationRouter from "./routes/notification.routes.js";
+app.use("/api/v1/notifications",notificationRouter);
+
+import mentorRouter from "./routes/mentor.routes.js";
+app.use("/api/v1/mentors", mentorRouter);
