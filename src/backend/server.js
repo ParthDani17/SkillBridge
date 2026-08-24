@@ -57,3 +57,6 @@ app.use("/api/v1/admin", adminRouter);
 
 import reportRouter from "./routes/report.routes.js";
 app.use("/api/v1/reports",reportRouter);
+
+import analyticsRouter from "./routes/analytics.routes.js";
+app.use("/api/v1/analytics",analyticsRouter);
