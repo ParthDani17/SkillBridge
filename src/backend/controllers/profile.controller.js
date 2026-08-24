@@ -1,8 +1,11 @@
 import Profile from "../models/Profile.js";
+import User from "../models/User.js";
+
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import User from "../models/User.js";
+
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const getProfile = asyncHandler(async (req, res) => {
 
@@ -11,7 +14,10 @@ const getProfile = asyncHandler(async (req, res) => {
     });
 
     if (!profile) {
-        throw new ApiError(404, "Profile not found");
+        throw new ApiError(
+            404,
+            "Profile not found"
+        );
     }
 
     return res.status(200).json(
@@ -35,17 +41,88 @@ const updateProfile = asyncHandler(async (req, res) => {
         userId: req.user._id
     });
 
+    let resumeLocalPath;
+    let certificateLocalPath;
+
+    if (
+        req.files &&
+        Array.isArray(req.files.resume) &&
+        req.files.resume.length > 0
+    ) {
+        resumeLocalPath = req.files.resume[0].path;
+    }
+
+    if (
+        req.files &&
+        Array.isArray(req.files.certificate) &&
+        req.files.certificate.length > 0
+    ) {
+        certificateLocalPath =
+            req.files.certificate[0].path;
+    }
+
+    let resumeCloudinaryResponse;
+
+    if (resumeLocalPath) {
+        resumeCloudinaryResponse =
+            await uploadOnCloudinary(
+                resumeLocalPath
+            );
+    }
+
+    let certificateCloudinaryResponse;
+
+    if (certificateLocalPath) {
+        certificateCloudinaryResponse =
+            await uploadOnCloudinary(
+                certificateLocalPath
+            );
+    }
+
     if (!profile) {
+
         profile = await Profile.create({
             userId: req.user._id,
-            bio,
-            availability,
-            portfolioLink
+
+            bio: bio || "",
+
+            availability:
+                availability || "",
+
+            portfolioLink:
+                portfolioLink || "",
+
+            resume:
+                resumeCloudinaryResponse?.secure_url || "",
+
+            certificate:
+                certificateCloudinaryResponse?.secure_url || ""
         });
+
     } else {
-        profile.bio = bio ?? profile.bio;//?? = use the new bio from the request, unless it's null or undefined in that case, keep the existing value
-        profile.availability = availability ?? profile.availability;
-        profile.portfolioLink = portfolioLink ?? profile.portfolioLink;
+
+        profile.bio =
+            bio ?? profile.bio;
+
+        profile.availability =
+            availability ?? profile.availability;
+
+        profile.portfolioLink =
+            portfolioLink ?? profile.portfolioLink;
+
+        if (
+            resumeCloudinaryResponse?.secure_url
+        ) {
+            profile.resume =
+                resumeCloudinaryResponse.secure_url;
+        }
+
+        if (
+            certificateCloudinaryResponse?.secure_url
+        ) {
+            profile.certificate =
+                certificateCloudinaryResponse.secure_url;
+        }
 
         await profile.save();
     }
@@ -65,7 +142,9 @@ const deleteAccount = asyncHandler(async (req, res) => {
         userId: req.user._id
     });
 
-    await User.findByIdAndDelete(req.user._id);
+    await User.findByIdAndDelete(
+        req.user._id
+    );
 
     return res.status(200).json(
         new ApiResponse(
@@ -76,4 +155,8 @@ const deleteAccount = asyncHandler(async (req, res) => {
     );
 });
 
-export { getProfile, updateProfile, deleteAccount };
+export {
+    getProfile,
+    updateProfile,
+    deleteAccount
+};
