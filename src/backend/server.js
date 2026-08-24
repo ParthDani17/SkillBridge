@@ -38,10 +38,7 @@ import studentRouter from "./routes/student.routes.js";
 app.use("/api/v1/students", studentRouter);
 
 import learningRequestRoutes from "./routes/learningRequest.routes.js";
-app.use(
-    "/api/v1/learning-requests",
-    learningRequestRoutes
-);
+app.use("/api/v1/learning-requests",learningRequestRoutes);
 
 import sessionRouter from "./routes/session.routes.js";
 app.use("/api/v1/sessions", sessionRouter);
@@ -54,3 +51,6 @@ app.use("/api/v1/notifications",notificationRouter);
 
 import mentorRouter from "./routes/mentor.routes.js";
 app.use("/api/v1/mentors", mentorRouter);
+
+import adminRouter from "./routes/admin.routes.js";
+app.use("/api/v1/admin", adminRouter);
