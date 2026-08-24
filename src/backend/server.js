@@ -54,3 +54,6 @@ app.use("/api/v1/mentors", mentorRouter);
 
 import adminRouter from "./routes/admin.routes.js";
 app.use("/api/v1/admin", adminRouter);
+
+import reportRouter from "./routes/report.routes.js";
+app.use("/api/v1/reports",reportRouter);
