@@ -48,7 +48,12 @@ const userSchema = new mongoose.Schema(
         },
         refreshToken: {
             type: String
-        }
+        },
+        accountStatus: {
+            type: String,
+            enum: ["active", "suspended"],
+            default: "active"
+        }   
     },
     {
         timestamps: true
