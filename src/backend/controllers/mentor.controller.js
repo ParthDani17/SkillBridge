@@ -18,8 +18,8 @@ const getAllMentors = asyncHandler(async (req, res) => {
 
         const skills = await Skill.find({
             skillName: {
-                $regex: skill,
-                $options: "i"
+                $regex: skill,//pattern matching for skill name
+                $options: "i"//case-insensitive search
             }
         });
 
