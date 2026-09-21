@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
+import Register from "./pages/Register";
 
 function App() {
     return (
@@ -24,7 +25,7 @@ function App() {
 
                 <Route
                     path="/register"
-                    element={<h1>Register</h1>}
+                    element={<Register />}
                 />
 
             </Routes>
@@ -32,4 +33,5 @@ function App() {
         </BrowserRouter>
     );
 }
+
 export default App;
