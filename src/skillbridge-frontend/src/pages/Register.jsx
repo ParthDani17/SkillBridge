@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api.js";
 
 function Register() {
 
@@ -61,8 +61,8 @@ function Register() {
                 data.append("profilePicture", profilePicture);
             }
 
-            const response = await axios.post(
-                "http://localhost:5000/api/v1/users/register",
+            const response = await api.post(
+                "/users/register",
                 data
             );
 
