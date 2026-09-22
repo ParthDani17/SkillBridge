@@ -208,3 +208,63 @@ a {
     color: #2563eb;
     font-weight: bold;
 }
+
+.login-page {
+    min-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 35px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.login-card h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #1e3a8a;
+}
+
+.login-card > p {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #1e3a8a;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-card button:hover {
+    background-color: #2563eb;
+}
+
+.login-card button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.register-link {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.register-link a {
+    color: #2563eb;
+    font-weight: bold;
+}
