@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
 
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -48,19 +50,10 @@ function Login() {
             const refreshToken =
                 response.data.data.refreshToken;
 
-            localStorage.setItem(
-                "accessToken",
-                accessToken
-            );
-
-            localStorage.setItem(
-                "refreshToken",
+            login(
+                user,
+                accessToken,
                 refreshToken
-            );
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify(user)
             );
 
             if (user.role === "Student") {
