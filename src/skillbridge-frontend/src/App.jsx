@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { AuthProvider } from "./context/AuthContext";
+
 import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
@@ -14,41 +16,45 @@ function App() {
     return (
         <BrowserRouter>
 
-            <Navbar />
+            <AuthProvider>
 
-            <Routes>
+                <Navbar />
 
-                <Route
-                    path="/"
-                    element={<Home />}
-                />
+                <Routes>
 
-                <Route
-                    path="/login"
-                    element={<Login />}
-                />
+                    <Route
+                        path="/"
+                        element={<Home />}
+                    />
 
-                <Route
-                    path="/register"
-                    element={<Register />}
-                />
+                    <Route
+                        path="/login"
+                        element={<Login />}
+                    />
 
-                <Route
-                    path="/student/dashboard"
-                    element={<StudentDashboard />}
-                />
+                    <Route
+                        path="/register"
+                        element={<Register />}
+                    />
 
-                <Route
-                    path="/mentor/dashboard"
-                    element={<MentorDashboard />}
-                />
+                    <Route
+                        path="/student/dashboard"
+                        element={<StudentDashboard />}
+                    />
 
-                <Route
-                    path="/admin/dashboard"
-                    element={<AdminDashboard />}
-                />
+                    <Route
+                        path="/mentor/dashboard"
+                        element={<MentorDashboard />}
+                    />
 
-            </Routes>
+                    <Route
+                        path="/admin/dashboard"
+                        element={<AdminDashboard />}
+                    />
+
+                </Routes>
+
+            </AuthProvider>
 
         </BrowserRouter>
     );
