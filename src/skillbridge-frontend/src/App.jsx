@@ -38,23 +38,25 @@ function App() {
                         element={<Register />}
                     />
 
-                    <Route element={<ProtectedRoute />}>
-
+                    <Route element={<ProtectedRoute allowedRoles={["Student"]} />}>
                         <Route
                             path="/student/dashboard"
                             element={<StudentDashboard />}
                         />
+                    </Route>
 
+                    <Route element={<ProtectedRoute allowedRoles={["Mentor"]} />}>
                         <Route
                             path="/mentor/dashboard"
                             element={<MentorDashboard />}
                         />
+                    </Route>
 
+                    <Route element={<ProtectedRoute allowedRoles={["Administrator"]} />}>
                         <Route
                             path="/admin/dashboard"
                             element={<AdminDashboard />}
                         />
-
                     </Route>
 
                 </Routes>
