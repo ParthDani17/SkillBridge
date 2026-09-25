@@ -369,3 +369,52 @@ a {
     }
 
 }
+
+/* Profile */
+
+.profile-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.profile-header {
+    margin-bottom: 25px;
+}
+
+.profile-header h1 {
+    margin-bottom: 8px;
+}
+
+.profile-header p {
+    color: #666;
+}
+
+.profile-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.profile-card h2 {
+    margin-bottom: 20px;
+}
+
+.profile-info p {
+    margin: 12px 0;
+}
+
+.profile-card textarea,
+.profile-card input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-card button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
