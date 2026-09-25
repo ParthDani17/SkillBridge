@@ -4,27 +4,53 @@ import api from "../services/api";
 function StudentDashboard() {
 
     const [user, setUser] = useState(null);
+    const [learningRequests, setLearningRequests] = useState([]);
+    const [sessions, setSessions] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
 
-        const getCurrentUser = async () => {
+        const getDashboardData = async () => {
 
             try {
 
-                const response = await api.get("/users/me");
+                const [
+                    userResponse,
+                    learningRequestsResponse,
+                    sessionsResponse,
+                    notificationsResponse
+                ] = await Promise.all([
+                    api.get("/users/me"),
+                    api.get("/learning-requests/my"),
+                    api.get("/sessions/my"),
+                    api.get("/notifications/my")
+                ]);
 
-                setUser(response.data.data);
+                setUser(userResponse.data.data);
+
+                setLearningRequests(
+                    learningRequestsResponse.data.data || []
+                );
+
+                setSessions(
+                    sessionsResponse.data.data || []
+                );
+
+                setNotifications(
+                    notificationsResponse.data.data || []
+                );
 
             } catch (error) {
 
                 console.error(
-                    "Error fetching current user:",
+                    "Error fetching dashboard data:",
                     error.response?.data || error.message
                 );
 
-                setError("Unable to load your information.");
+                setError("Unable to load dashboard information.");
 
             } finally {
 
@@ -34,7 +60,7 @@ function StudentDashboard() {
 
         };
 
-        getCurrentUser();
+        getDashboardData();
 
     }, []);
 
@@ -68,17 +94,17 @@ function StudentDashboard() {
 
                 <div className="stat-card">
                     <h3>Learning Requests</h3>
-                    <p>0</p>
+                    <p>{learningRequests.length}</p>
                 </div>
 
                 <div className="stat-card">
-                    <h3>Upcoming Sessions</h3>
-                    <p>0</p>
+                    <h3>Sessions</h3>
+                    <p>{sessions.length}</p>
                 </div>
 
                 <div className="stat-card">
                     <h3>Notifications</h3>
-                    <p>0</p>
+                    <p>{notifications.length}</p>
                 </div>
 
                 <div className="stat-card">
