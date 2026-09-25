@@ -56,9 +56,10 @@ function Navbar() {
                         </span>
 
                         {user.role === "Student" && (
-                            <Link to="/student/dashboard">
-                                Dashboard
-                            </Link>
+                            <>
+                                <Link to="/student/dashboard">Dashboard</Link>
+                                <Link to="/student/profile">Profile</Link>
+                            </>
                         )}
 
                         {user.role === "Mentor" && (
