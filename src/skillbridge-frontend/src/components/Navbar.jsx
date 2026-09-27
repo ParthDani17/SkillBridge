@@ -59,6 +59,7 @@ function Navbar() {
                             <>
                                 <Link to="/student/dashboard">Dashboard</Link>
                                 <Link to="/student/profile">Profile</Link>
+                                <Link to="/student/skills">My Skills</Link>
                             </>
                         )}
 
