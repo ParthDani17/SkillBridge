@@ -46,6 +46,32 @@ const addSkill = asyncHandler(async (req, res) => {
     );
 });
 
+const getMySkills = asyncHandler(async (req, res) => {
+
+    const profile = await Profile.findOne({
+        userId: req.user._id
+    });
+
+    if (!profile) {
+        throw new ApiError(
+            404,
+            "Profile not found"
+        );
+    }
+
+    const skills = await Skill.find({
+        profileId: profile._id
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            skills,
+            "Skills fetched successfully"
+        )
+    );
+});
+
 const updateSkill = asyncHandler(async (req, res) => {
 
     const { skillName, category, proficiencyLevel } = req.body;
@@ -123,4 +149,4 @@ const deleteSkill = asyncHandler(async (req, res) => {
     );
 });
 
-export { addSkill, updateSkill, deleteSkill };
+export { addSkill, getMySkills, updateSkill, deleteSkill };
