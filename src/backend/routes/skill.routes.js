@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addSkill,updateSkill,deleteSkill } from "../controllers/skill.controller.js";
+import { addSkill,getMySkills,updateSkill,deleteSkill } from "../controllers/skill.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -7,6 +7,11 @@ const router = Router();
 router.route("/").post(
     verifyJWT,
     addSkill
+);
+
+router.route("/my").get(
+    verifyJWT,
+    getMySkills
 );
 
 router.route("/:id").put(
