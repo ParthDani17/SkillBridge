@@ -57,9 +57,21 @@ function Navbar() {
 
                         {user.role === "Student" && (
                             <>
-                                <Link to="/student/dashboard">Dashboard</Link>
-                                <Link to="/student/profile">Profile</Link>
-                                <Link to="/student/skills">My Skills</Link>
+                                <Link to="/student/dashboard">
+                                    Dashboard
+                                </Link>
+
+                                <Link to="/student/profile">
+                                    Profile
+                                </Link>
+
+                                <Link to="/student/skills">
+                                    My Skills
+                                </Link>
+
+                                <Link to="/student/mentors">
+                                    Find Mentor
+                                </Link>
                             </>
                         )}
 
