@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import StudentProfile from "./pages/StudentProfile";
 import MySkills from "./pages/MySkills";
 import Mentors from "./pages/Mentors";
+import MentorProfile from "./pages/MentorProfile";
 
 function App() {
     return (
@@ -61,6 +62,11 @@ function App() {
                         <Route
                             path="/student/mentors"
                             element={<Mentors />}
+                        />
+
+                        <Route
+                            path="/student/mentors/:id"
+                            element={<MentorProfile />}
                         />
 
                     </Route>
