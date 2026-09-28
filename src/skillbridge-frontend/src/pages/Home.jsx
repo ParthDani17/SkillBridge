@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Home() {
+    const { user, isAuthenticated } = useAuth();
+
     return (
         <div className="home-page">
 
@@ -17,13 +20,39 @@ function Home() {
 
                 <div className="hero-buttons">
 
-                    <Link to="/register">
-                        Get Started
-                    </Link>
+                    {!isAuthenticated && (
+                        <>
+                            <Link to="/register">
+                                Get Started
+                            </Link>
 
-                    <Link to="/login">
-                        Login
-                    </Link>
+                            <Link to="/login">
+                                Login
+                            </Link>
+                        </>
+                    )}
+
+                    {isAuthenticated && (
+                        <>
+                            {user.role === "Student" && (
+                                <Link to="/student/dashboard">
+                                    Go to Dashboard
+                                </Link>
+                            )}
+
+                            {user.role === "Mentor" && (
+                                <Link to="/mentor/dashboard">
+                                    Go to Dashboard
+                                </Link>
+                            )}
+
+                            {user.role === "Administrator" && (
+                                <Link to="/admin/dashboard">
+                                    Go to Dashboard
+                                </Link>
+                            )}
+                        </>
+                    )}
 
                 </div>
 
