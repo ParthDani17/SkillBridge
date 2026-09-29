@@ -16,6 +16,7 @@ import StudentProfile from "./pages/StudentProfile";
 import MySkills from "./pages/MySkills";
 import Mentors from "./pages/Mentors";
 import MentorProfile from "./pages/MentorProfile";
+import LearningRequests from "./pages/LearningRequests";
 
 function App() {
     return (
@@ -67,6 +68,11 @@ function App() {
                         <Route
                             path="/student/mentors/:id"
                             element={<MentorProfile />}
+                        />
+
+                        <Route
+                            path="/student/requests"
+                            element={<LearningRequests />}
                         />
 
                     </Route>
