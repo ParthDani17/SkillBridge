@@ -9,8 +9,14 @@ function MentorProfile() {
     const [profile, setProfile] = useState(null);
     const [skills, setSkills] = useState([]);
 
+    const [selectedSkill, setSelectedSkill] = useState("");
+    const [message, setMessage] = useState("");
+
     const [loading, setLoading] = useState(true);
+    const [sendingRequest, setSendingRequest] = useState(false);
+
     const [error, setError] = useState("");
+    const [requestMessage, setRequestMessage] = useState("");
 
     useEffect(() => {
         getMentorProfile();
@@ -37,6 +43,46 @@ function MentorProfile() {
             setError("Unable to load mentor profile.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSendRequest = async (event) => {
+        event.preventDefault();
+
+        setRequestMessage("");
+
+        if (!selectedSkill) {
+            setRequestMessage("Please select a skill.");
+            return;
+        }
+
+        setSendingRequest(true);
+
+        try {
+            await api.post("/learning-requests", {
+                mentorId: mentor._id,
+                skillId: selectedSkill,
+                message: message
+            });
+
+            setRequestMessage(
+                "Learning request sent successfully."
+            );
+
+            setSelectedSkill("");
+            setMessage("");
+        } catch (error) {
+            console.error(
+                "Error sending learning request:",
+                error.response?.data || error.message
+            );
+
+            setRequestMessage(
+                error.response?.data?.message ||
+                "Unable to send learning request."
+            );
+        } finally {
+            setSendingRequest(false);
         }
     };
 
@@ -145,7 +191,8 @@ function MentorProfile() {
                                 className="skill-tag"
                                 key={skill._id}
                             >
-                                {skill.skillName} - {skill.proficiencyLevel}
+                                {skill.skillName} -{" "}
+                                {skill.proficiencyLevel}
                             </span>
                         ))}
                     </div>
@@ -179,6 +226,77 @@ function MentorProfile() {
                     <strong>Average Rating:</strong>{" "}
                     {profile?.averageRating ?? 0}
                 </p>
+
+            </div>
+
+            <div className="profile-card">
+
+                <h2>Send Learning Request</h2>
+
+                <form onSubmit={handleSendRequest}>
+
+                    <div className="form-group">
+
+                        <label htmlFor="skill">
+                            Select Skill
+                        </label>
+
+                        <select
+                            id="skill"
+                            value={selectedSkill}
+                            onChange={(event) =>
+                                setSelectedSkill(event.target.value)
+                            }
+                        >
+                            <option value="">
+                                Select a skill
+                            </option>
+
+                            {skills.map((skill) => (
+                                <option
+                                    key={skill._id}
+                                    value={skill._id}
+                                >
+                                    {skill.skillName} -{" "}
+                                    {skill.proficiencyLevel}
+                                </option>
+                            ))}
+                        </select>
+
+                    </div>
+
+                    <div className="form-group">
+
+                        <label htmlFor="message">
+                            Message
+                        </label>
+
+                        <textarea
+                            id="message"
+                            value={message}
+                            onChange={(event) =>
+                                setMessage(event.target.value)
+                            }
+                            placeholder="Tell the mentor what you want to learn..."
+                            rows="5"
+                        />
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={sendingRequest}
+                    >
+                        {sendingRequest
+                            ? "Sending..."
+                            : "Send Learning Request"}
+                    </button>
+
+                </form>
+
+                {requestMessage && (
+                    <p>{requestMessage}</p>
+                )}
 
             </div>
 
