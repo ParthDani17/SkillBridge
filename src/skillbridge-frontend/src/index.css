@@ -462,3 +462,26 @@ a {
     border-radius: 15px;
     background-color: #f0f0f0;
 }
+
+.request-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    text-transform: capitalize;
+}
+
+.request-status.pending {
+    background-color: #fff3cd;
+}
+
+.request-status.accepted {
+    background-color: #d4edda;
+}
+
+.request-status.rejected {
+    background-color: #f8d7da;
+}
+
+.request-status.cancelled {
+    background-color: #e2e3e5;
+}
