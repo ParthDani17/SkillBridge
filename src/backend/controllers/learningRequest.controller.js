@@ -121,10 +121,11 @@ const getMyLearningRequests = asyncHandler(async (req, res) => {
 });
 
 const getReceivedLearningRequests = asyncHandler(async (req, res) => {
-
     const learningRequests = await LearningRequest.find({
         mentorId: req.user._id
-    });
+    })
+        .populate("studentId", "name email department academicYear")
+        .populate("skillId", "skillName category proficiencyLevel");
 
     return res.status(200).json(
         new ApiResponse(
