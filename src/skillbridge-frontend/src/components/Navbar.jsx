@@ -76,6 +76,10 @@ function Navbar() {
                                 <Link to="/student/requests">
                                     My Requests
                                 </Link>
+
+                                <Link to="/student/sessions">
+                                    My Sessions
+                                </Link>
                             </>
                         )}
 
