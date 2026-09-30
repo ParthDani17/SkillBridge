@@ -104,7 +104,16 @@ const getMySessions = asyncHandler(async (req, res) => {
             { studentId: req.user._id },
             { mentorId: req.user._id }
         ]
-    });
+    })
+        .populate("studentId", "name email department academicYear")
+        .populate("mentorId", "name email department academicYear")
+        .populate({
+            path: "learningRequestId",
+            populate: {
+                path: "skillId",
+                select: "skillName category proficiencyLevel"
+            }
+        });
 
     return res.status(200).json(
         new ApiResponse(
