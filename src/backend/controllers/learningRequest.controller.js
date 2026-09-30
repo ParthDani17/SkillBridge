@@ -105,10 +105,11 @@ const createLearningRequest = asyncHandler(async (req, res) => {
 });
 
 const getMyLearningRequests = asyncHandler(async (req, res) => {
-
     const learningRequests = await LearningRequest.find({
         studentId: req.user._id
-    });
+    })
+        .populate("mentorId", "name email department academicYear")
+        .populate("skillId", "skillName category proficiencyLevel");
 
     return res.status(200).json(
         new ApiResponse(

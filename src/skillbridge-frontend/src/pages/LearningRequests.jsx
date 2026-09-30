@@ -87,13 +87,23 @@ function LearningRequests() {
                                 key={request._id}
                             >
                                 <p>
-                                    <strong>Mentor ID:</strong>{" "}
-                                    {request.mentorId}
+                                    <strong>Mentor:</strong>{" "}
+                                    {request.mentorId?.name}
                                 </p>
 
                                 <p>
-                                    <strong>Skill ID:</strong>{" "}
-                                    {request.skillId}
+                                    <strong>Department:</strong>{" "}
+                                    {request.mentorId?.department}
+                                </p>
+
+                                <p>
+                                    <strong>Skill:</strong>{" "}
+                                    {request.skillId?.skillName}
+                                </p>
+
+                                <p>
+                                    <strong>Proficiency:</strong>{" "}
+                                    {request.skillId?.proficiencyLevel}
                                 </p>
 
                                 <p>
