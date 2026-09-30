@@ -17,6 +17,7 @@ import MySkills from "./pages/MySkills";
 import Mentors from "./pages/Mentors";
 import MentorProfile from "./pages/MentorProfile";
 import LearningRequests from "./pages/LearningRequests";
+import MentorRequests from "./pages/MentorRequests";
 
 function App() {
     return (
@@ -81,6 +82,11 @@ function App() {
                         <Route
                             path="/mentor/dashboard"
                             element={<MentorDashboard />}
+                        />
+
+                        <Route
+                            path="/mentor/requests"
+                            element={<MentorRequests />}
                         />
                     </Route>
 

@@ -80,9 +80,16 @@ function Navbar() {
                         )}
 
                         {user.role === "Mentor" && (
-                            <Link to="/mentor/dashboard">
-                                Dashboard
-                            </Link>
+                            <>
+                                <Link to="/mentor/dashboard">
+                                    Dashboard
+                                </Link>
+
+                                <Link to="/mentor/requests">
+                                    Requests
+                                </Link>
+                            </>
+                            
                         )}
 
                         {user.role === "Administrator" && (
