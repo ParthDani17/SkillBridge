@@ -92,6 +92,10 @@ function Navbar() {
                                 <Link to="/mentor/requests">
                                     Requests
                                 </Link>
+
+                                <Link to="/mentor/sessions">
+                                    My Sessions
+                                </Link>
                             </>
                             
                         )}

@@ -19,6 +19,7 @@ import MentorProfile from "./pages/MentorProfile";
 import LearningRequests from "./pages/LearningRequests";
 import MentorRequests from "./pages/MentorRequests";
 import StudentSessions from "./pages/StudentSessions";
+import MentorSessions from "./pages/MentorSessions";
 
 function App() {
     return (
@@ -94,6 +95,12 @@ function App() {
                             path="/mentor/requests"
                             element={<MentorRequests />}
                         />
+
+                        <Route
+                            path="/mentor/sessions"
+                            element={<MentorSessions />}
+                        />
+                        
                     </Route>
 
                     <Route element={<ProtectedRoute allowedRoles={["Administrator"]} />}>
