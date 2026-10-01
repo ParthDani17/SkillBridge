@@ -22,6 +22,7 @@ import StudentSessions from "./pages/StudentSessions";
 import MentorSessions from "./pages/MentorSessions";
 import Notifications from "./pages/Notifications";
 import MyReviews from "./pages/MyReviews";
+import MentorProfilePage from "./pages/MentorProfilePage";
 
 function App() {
     return (
@@ -101,6 +102,11 @@ function App() {
                         <Route
                             path="/mentor/dashboard"
                             element={<MentorDashboard />}
+                        />
+
+                        <Route
+                            path="/mentor/profile"
+                            element={<MentorProfilePage />}
                         />
 
                         <Route

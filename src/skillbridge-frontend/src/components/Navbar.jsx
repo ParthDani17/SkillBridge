@@ -97,6 +97,10 @@ function Navbar() {
                                     Dashboard
                                 </Link>
 
+                                <Link to="/mentor/profile">
+                                    My Profile
+                                </Link>
+
                                 <Link to="/mentor/requests">
                                     Requests
                                 </Link>
