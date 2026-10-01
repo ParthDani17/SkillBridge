@@ -21,6 +21,7 @@ import MentorRequests from "./pages/MentorRequests";
 import StudentSessions from "./pages/StudentSessions";
 import MentorSessions from "./pages/MentorSessions";
 import Notifications from "./pages/Notifications";
+import MyReviews from "./pages/MyReviews";
 
 function App() {
     return (
@@ -87,6 +88,11 @@ function App() {
                         <Route
                             path="/student/notifications"
                             element={<Notifications />}
+                        />
+
+                        <Route
+                            path="/student/reviews"
+                            element={<MyReviews />}
                         />
 
                     </Route>

@@ -6,9 +6,14 @@ function StudentSessions() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [actionMessage, setActionMessage] = useState("");
+    const [selectedSession, setSelectedSession] = useState(null);
+    const [rating, setRating] = useState("");
+    const [comment, setComment] = useState("");
+    const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
         getSessions();
+        getReviews();
     }, []);
 
     const getSessions = async () => {
@@ -28,6 +33,19 @@ function StudentSessions() {
             setError("Unable to load sessions.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const getReviews = async () => {
+        try {
+            const response = await api.get("/reviews/my");
+
+            setReviews(response.data.data || []);
+        } catch (error) {
+            console.error(
+                "Error fetching reviews:",
+                error.response?.data || error.message
+            );
         }
     };
 
@@ -77,6 +95,55 @@ function StudentSessions() {
                 "Unable to cancel session."
             );
         }
+    };
+
+    const handleReviewClick = (session) => {
+        setSelectedSession(session);
+        setRating("");
+        setComment("");
+        setActionMessage("");
+    };
+
+    const handleSubmitReview = async (event) => {
+        event.preventDefault();
+
+        if (!selectedSession) {
+            return;
+        }
+
+        setActionMessage("");
+
+        try {
+            await api.post("/reviews", {
+                sessionId: selectedSession._id,
+                rating: Number(rating),
+                comment
+            });
+
+            setActionMessage(
+                "Review submitted successfully."
+            );
+
+            setSelectedSession(null);
+            setRating("");
+            setComment("");
+        } catch (error) {
+            console.error(
+                "Error submitting review:",
+                error.response?.data || error.message
+            );
+
+            setActionMessage(
+                error.response?.data?.message ||
+                "Unable to submit review."
+            );
+        }
+    };
+
+    const handleCancelReview = () => {
+        setSelectedSession(null);
+        setRating("");
+        setComment("");
     };
 
     const getStatusClass = (status) => {
@@ -200,10 +267,128 @@ function StudentSessions() {
                                         </button>
                                     </div>
                                 )}
+
+                                {session.status === "completed" &&
+                                    !reviews.some(
+                                        (review) =>
+                                            review.sessionId?.toString() === session._id
+                                    ) && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleReviewClick(session)
+                                            }
+                                        >
+                                            Write Review
+                                        </button>
+                                )}
+
                             </div>
                         ))
                     )}
 
+                </div>
+            )}
+
+            {selectedSession && (
+                <div className="profile-card">
+                    <h2>Write Review</h2>
+
+                    <p>
+                        <strong>Mentor:</strong>{" "}
+                        {selectedSession.mentorId?.name}
+                    </p>
+
+                    <p>
+                        <strong>Skill:</strong>{" "}
+                        {selectedSession.learningRequestId
+                            ?.skillId
+                            ?.skillName || "Skill"}
+                    </p>
+
+                    <form onSubmit={handleSubmitReview}>
+                        <div className="form-group">
+                            <label htmlFor="rating">
+                                Rating
+                            </label>
+
+                            <select
+                                id="rating"
+                                value={rating}
+                                onChange={(event) =>
+                                    setRating(event.target.value)
+                                }
+                                required
+                            >
+                                <option value="">
+                                    Select Rating
+                                </option>
+
+                                <option value="1">
+                                    1
+                                </option>
+
+                                <option value="1.5">
+                                    1.5
+                                </option>
+
+                                <option value="2">
+                                    2
+                                </option>
+
+                                <option value="2.5">
+                                    2.5
+                                </option>
+
+                                <option value="3">
+                                    3
+                                </option>
+
+                                <option value="3.5">
+                                    3.5
+                                </option>
+
+                                <option value="4">
+                                    4
+                                </option>
+
+                                <option value="4.5">
+                                    4.5
+                                </option>
+
+                                <option value="5">
+                                    5
+                                </option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="comment">
+                                Comment
+                            </label>
+
+                            <textarea
+                                id="comment"
+                                value={comment}
+                                onChange={(event) =>
+                                    setComment(event.target.value)
+                                }
+                                placeholder="Write your feedback..."
+                                rows="4"
+                            />
+                        </div>
+
+                        <button type="submit">
+                            Submit Review
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleCancelReview}
+                        >
+                            Cancel
+                        </button>
+                    </form>
                 </div>
             )}
 

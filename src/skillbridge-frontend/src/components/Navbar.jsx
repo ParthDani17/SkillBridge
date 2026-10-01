@@ -84,6 +84,10 @@ function Navbar() {
                                 <Link to="/student/notifications">
                                     Notifications
                                 </Link>
+
+                                <Link to="/student/reviews">
+                                    My Reviews
+                                </Link>
                             </>
                         )}
 
