@@ -3,6 +3,7 @@ import api from "../services/api";
 
 function MyReviews() {
     const [reviews, setReviews] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [actionMessage, setActionMessage] = useState("");
@@ -32,6 +33,14 @@ function MyReviews() {
     };
 
     const handleDelete = async (id) => {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this review?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
         setActionMessage("");
 
         try {
@@ -55,87 +64,89 @@ function MyReviews() {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="profile-page">
+                <h2>Loading reviews...</h2>
+            </div>
+        );
+    }
+
     return (
         <div className="profile-page">
+
             <div className="profile-header">
                 <h1>My Reviews</h1>
 
                 <p>
-                    View the reviews you have submitted.
+                    View the reviews you have submitted to mentors.
                 </p>
             </div>
 
-            {loading && (
-                <div className="profile-card">
-                    <h2>Loading reviews...</h2>
-                </div>
-            )}
-
             {error && (
-                <div className="profile-card">
-                    <p className="error-message">
-                        {error}
-                    </p>
-                </div>
+                <p className="error-message">
+                    {error}
+                </p>
             )}
 
             {actionMessage && (
-                <div className="profile-card">
-                    <p>{actionMessage}</p>
-                </div>
+                <p className="success-message">
+                    {actionMessage}
+                </p>
             )}
 
-            {!loading && !error && (
+            {reviews.length === 0 ? (
                 <div className="profile-card">
-                    <h2>Your Reviews</h2>
+                    <h2>No Reviews Yet</h2>
 
-                    {reviews.length === 0 ? (
+                    <p>
+                        You have not submitted any reviews yet.
+                    </p>
+                </div>
+            ) : (
+                reviews.map((review) => (
+                    <div
+                        className="skill-card"
+                        key={review._id}
+                    >
+                        <h3>
+                            {review.mentorId?.name}
+                        </h3>
+
                         <p>
-                            You have not written any reviews yet.
+                            <strong>Email:</strong>{" "}
+                            {review.mentorId?.email}
                         </p>
-                    ) : (
-                        reviews.map((review) => (
-                            <div
-                                className="skill-card"
-                                key={review._id}
-                            >
-                                <h3>
-                                    {review.mentorId?.name}
-                                </h3>
 
-                                <p>
-                                    <strong>Rating:</strong>{" "}
-                                    {review.rating} / 5
-                                </p>
+                        <p>
+                            <strong>Rating:</strong>{" "}
+                            ⭐ {review.rating} / 5
+                        </p>
 
-                                <p>
-                                    <strong>Comment:</strong>{" "}
-                                    {review.comment ||
-                                        "No comment"}
-                                </p>
+                        <p>
+                            <strong>Comment:</strong>{" "}
+                            {review.comment || "No comment provided"}
+                        </p>
 
-                                <p>
-                                    <strong>Reviewed On:</strong>{" "}
-                                    {new Date(
-                                        review.createdAt
-                                    ).toLocaleDateString()}
-                                </p>
+                        <p>
+                            <strong>Reviewed On:</strong>{" "}
+                            {new Date(
+                                review.createdAt
+                            ).toLocaleDateString()}
+                        </p>
 
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        handleDelete(
-                                            review._id
-                                        )
-                                    }
-                                >
-                                    Delete Review
-                                </button>
-                            </div>
-                        ))
-                    )}
-                </div>
+                        <button
+                            type="button"
+                            onClick={() =>
+                                handleDelete(review._id)
+                            }
+                        >
+                            Delete Review
+                        </button>
+                    </div>
+                ))
             )}
+
         </div>
     );
 }
