@@ -3,13 +3,15 @@ import api from "../services/api";
 
 function StudentSessions() {
     const [sessions, setSessions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [actionMessage, setActionMessage] = useState("");
+    const [reviews, setReviews] = useState([]);
+
     const [selectedSession, setSelectedSession] = useState(null);
     const [rating, setRating] = useState("");
     const [comment, setComment] = useState("");
-    const [reviews, setReviews] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [actionMessage, setActionMessage] = useState("");
 
     useEffect(() => {
         getSessions();
@@ -104,12 +106,8 @@ function StudentSessions() {
         setActionMessage("");
     };
 
-    const handleSubmitReview = async (event) => {
+    const handleReviewSubmit = async (event) => {
         event.preventDefault();
-
-        if (!selectedSession) {
-            return;
-        }
 
         setActionMessage("");
 
@@ -127,6 +125,8 @@ function StudentSessions() {
             setSelectedSession(null);
             setRating("");
             setComment("");
+
+            getReviews();
         } catch (error) {
             console.error(
                 "Error submitting review:",
@@ -140,10 +140,12 @@ function StudentSessions() {
         }
     };
 
-    const handleCancelReview = () => {
-        setSelectedSession(null);
-        setRating("");
-        setComment("");
+    const hasReviewed = (sessionId) => {
+        return reviews.some(
+            (review) =>
+                review.sessionId?.toString() ===
+                sessionId.toString()
+        );
     };
 
     const getStatusClass = (status) => {
@@ -158,6 +160,14 @@ function StudentSessions() {
         return "request-status pending";
     };
 
+    if (loading) {
+        return (
+            <div className="profile-page">
+                <h2>Loading sessions...</h2>
+            </div>
+        );
+    }
+
     return (
         <div className="profile-page">
 
@@ -169,129 +179,130 @@ function StudentSessions() {
                 </p>
             </div>
 
-            {loading && (
-                <div className="profile-card">
-                    <h2>Loading sessions...</h2>
-                </div>
-            )}
-
             {error && (
-                <div className="profile-card">
-                    <p className="error-message">
-                        {error}
-                    </p>
-                </div>
+                <p className="error-message">
+                    {error}
+                </p>
             )}
 
             {actionMessage && (
-                <div className="profile-card">
-                    <p>{actionMessage}</p>
-                </div>
+                <p className="success-message">
+                    {actionMessage}
+                </p>
             )}
 
-            {!loading && !error && (
+            {sessions.length === 0 ? (
                 <div className="profile-card">
-
-                    <h2>Sessions</h2>
-
-                    {sessions.length === 0 ? (
-                        <p>
-                            You do not have any sessions yet.
-                        </p>
-                    ) : (
-                        sessions.map((session) => (
-                            <div
-                                className="skill-card"
-                                key={session._id}
-                            >
-                                <h3>
-                                    {session.mentorId?.name}
-                                </h3>
-
-                                <p>
-                                    <strong>Skill:</strong>{" "}
-                                    {session.learningRequestId
-                                        ?.skillId
-                                        ?.skillName ||
-                                        "Skill"}
-                                </p>
-
-                                <p>
-                                    <strong>Date:</strong>{" "}
-                                    {session.date}
-                                </p>
-
-                                <p>
-                                    <strong>Time:</strong>{" "}
-                                    {session.time}
-                                </p>
-
-                                <p>
-                                    <strong>Mode:</strong>{" "}
-                                    {session.mode}
-                                </p>
-
-                                <p>
-                                    <strong>Status:</strong>{" "}
-                                    <span
-                                        className={getStatusClass(
-                                            session.status
-                                        )}
-                                    >
-                                        {session.status}
-                                    </span>
-                                </p>
-
-                                {session.status === "scheduled" && (
-                                    <div>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleComplete(
-                                                    session._id
-                                                )
-                                            }
-                                        >
-                                            Mark Completed
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleCancel(
-                                                    session._id
-                                                )
-                                            }
-                                        >
-                                            Cancel Session
-                                        </button>
-                                    </div>
-                                )}
-
-                                {session.status === "completed" &&
-                                    !reviews.some(
-                                        (review) =>
-                                            review.sessionId?.toString() === session._id
-                                    ) && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleReviewClick(session)
-                                            }
-                                        >
-                                            Write Review
-                                        </button>
-                                )}
-
-                            </div>
-                        ))
-                    )}
-
+                    <p>
+                        You do not have any sessions yet.
+                    </p>
                 </div>
+            ) : (
+                sessions.map((session) => (
+                    <div
+                        className="skill-card"
+                        key={session._id}
+                    >
+                        <h3>
+                            {session.mentorId?.name}
+                        </h3>
+
+                        <p>
+                            <strong>Email:</strong>{" "}
+                            {session.mentorId?.email}
+                        </p>
+
+                        <p>
+                            <strong>Department:</strong>{" "}
+                            {session.mentorId?.department}
+                        </p>
+
+                        <p>
+                            <strong>Skill:</strong>{" "}
+                            {session.learningRequestId?.skillId?.skillName}
+                        </p>
+
+                        <p>
+                            <strong>Date:</strong>{" "}
+                            {session.date}
+                        </p>
+
+                        <p>
+                            <strong>Time:</strong>{" "}
+                            {session.time}
+                        </p>
+
+                        <p>
+                            <strong>Mode:</strong>{" "}
+                            {session.mode}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>{" "}
+                            <span
+                                className={getStatusClass(
+                                    session.status
+                                )}
+                            >
+                                {session.status}
+                            </span>
+                        </p>
+
+                        {session.status === "scheduled" && (
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleComplete(
+                                            session._id
+                                        )
+                                    }
+                                >
+                                    Complete Session
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleCancel(
+                                            session._id
+                                        )
+                                    }
+                                >
+                                    Cancel Session
+                                </button>
+                            </div>
+                        )}
+
+                        {session.status === "completed" &&
+                            !hasReviewed(session._id) && (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleReviewClick(
+                                            session
+                                        )
+                                    }
+                                >
+                                    Write Review
+                                </button>
+                            )}
+
+                        {session.status === "completed" &&
+                            hasReviewed(session._id) && (
+                                <p>
+                                    <strong>
+                                        Review submitted ✓
+                                    </strong>
+                                </p>
+                            )}
+                    </div>
+                ))
             )}
 
             {selectedSession && (
                 <div className="profile-card">
+
                     <h2>Write Review</h2>
 
                     <p>
@@ -299,15 +310,10 @@ function StudentSessions() {
                         {selectedSession.mentorId?.name}
                     </p>
 
-                    <p>
-                        <strong>Skill:</strong>{" "}
-                        {selectedSession.learningRequestId
-                            ?.skillId
-                            ?.skillName || "Skill"}
-                    </p>
+                    <form onSubmit={handleReviewSubmit}>
 
-                    <form onSubmit={handleSubmitReview}>
                         <div className="form-group">
+
                             <label htmlFor="rating">
                                 Rating
                             </label>
@@ -316,7 +322,9 @@ function StudentSessions() {
                                 id="rating"
                                 value={rating}
                                 onChange={(event) =>
-                                    setRating(event.target.value)
+                                    setRating(
+                                        event.target.value
+                                    )
                                 }
                                 required
                             >
@@ -360,9 +368,11 @@ function StudentSessions() {
                                     5
                                 </option>
                             </select>
+
                         </div>
 
                         <div className="form-group">
+
                             <label htmlFor="comment">
                                 Comment
                             </label>
@@ -371,11 +381,14 @@ function StudentSessions() {
                                 id="comment"
                                 value={comment}
                                 onChange={(event) =>
-                                    setComment(event.target.value)
+                                    setComment(
+                                        event.target.value
+                                    )
                                 }
-                                placeholder="Write your feedback..."
-                                rows="4"
+                                placeholder="Share your experience with this mentor"
+                                rows="5"
                             />
+
                         </div>
 
                         <button type="submit">
@@ -384,10 +397,13 @@ function StudentSessions() {
 
                         <button
                             type="button"
-                            onClick={handleCancelReview}
+                            onClick={() =>
+                                setSelectedSession(null)
+                            }
                         >
                             Cancel
                         </button>
+
                     </form>
                 </div>
             )}
