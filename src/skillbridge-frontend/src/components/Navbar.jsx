@@ -80,6 +80,10 @@ function Navbar() {
                                 <Link to="/student/sessions">
                                     My Sessions
                                 </Link>
+
+                                <Link to="/student/notifications">
+                                    Notifications
+                                </Link>
                             </>
                         )}
 
@@ -95,6 +99,10 @@ function Navbar() {
 
                                 <Link to="/mentor/sessions">
                                     My Sessions
+                                </Link>
+
+                                <Link to="/mentor/notifications">
+                                    Notifications
                                 </Link>
                             </>
                             

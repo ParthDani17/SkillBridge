@@ -20,6 +20,7 @@ import LearningRequests from "./pages/LearningRequests";
 import MentorRequests from "./pages/MentorRequests";
 import StudentSessions from "./pages/StudentSessions";
 import MentorSessions from "./pages/MentorSessions";
+import Notifications from "./pages/Notifications";
 
 function App() {
     return (
@@ -83,6 +84,11 @@ function App() {
                             element={<StudentSessions />}
                         />
 
+                        <Route
+                            path="/student/notifications"
+                            element={<Notifications />}
+                        />
+
                     </Route>
 
                     <Route element={<ProtectedRoute allowedRoles={["Mentor"]} />}>
@@ -100,7 +106,12 @@ function App() {
                             path="/mentor/sessions"
                             element={<MentorSessions />}
                         />
-                        
+
+                        <Route
+                            path="/mentor/notifications"
+                            element={<Notifications />}
+                        />
+
                     </Route>
 
                     <Route element={<ProtectedRoute allowedRoles={["Administrator"]} />}>

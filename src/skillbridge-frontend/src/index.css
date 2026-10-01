@@ -524,3 +524,8 @@ a {
     border-radius: 6px;
     text-decoration: none;
 }
+
+.skill-card button {
+    margin-right: 10px;
+    margin-top: 10px;
+}
