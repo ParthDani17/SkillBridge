@@ -6,12 +6,18 @@ function LearningRequests() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [actionMessage, setActionMessage] = useState("");
+
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [date, setDate] = useState("");
+    const [time, setTime] = useState("");
+    const [mode, setMode] = useState("online");
 
     useEffect(() => {
-        getLearningRequests();
+        getRequests();
     }, []);
 
-    const getLearningRequests = async () => {
+    const getRequests = async () => {
         setLoading(true);
         setError("");
 
@@ -29,6 +35,59 @@ function LearningRequests() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleScheduleClick = (request) => {
+        setSelectedRequest(request);
+        setDate("");
+        setTime("");
+        setMode("online");
+        setActionMessage("");
+    };
+
+    const handleSchedule = async (event) => {
+        event.preventDefault();
+
+        if (!selectedRequest) {
+            return;
+        }
+
+        setActionMessage("");
+
+        try {
+            await api.post("/sessions", {
+                learningRequestId: selectedRequest._id,
+                date,
+                time,
+                mode
+            });
+
+            setActionMessage(
+                "Session scheduled successfully."
+            );
+
+            setSelectedRequest(null);
+            setDate("");
+            setTime("");
+            setMode("online");
+        } catch (error) {
+            console.error(
+                "Error scheduling session:",
+                error.response?.data || error.message
+            );
+
+            setActionMessage(
+                error.response?.data?.message ||
+                "Unable to schedule session."
+            );
+        }
+    };
+
+    const handleCancelSchedule = () => {
+        setSelectedRequest(null);
+        setDate("");
+        setTime("");
+        setMode("online");
     };
 
     const getStatusClass = (status) => {
@@ -49,10 +108,12 @@ function LearningRequests() {
 
     return (
         <div className="profile-page">
-
             <div className="profile-header">
                 <h1>My Learning Requests</h1>
-                <p>View and track the learning requests you have sent.</p>
+
+                <p>
+                    View and manage your mentorship requests.
+                </p>
             </div>
 
             {loading && (
@@ -63,33 +124,35 @@ function LearningRequests() {
 
             {error && (
                 <div className="profile-card">
-                    <p className="error-message">{error}</p>
+                    <p className="error-message">
+                        {error}
+                    </p>
+                </div>
+            )}
+
+            {actionMessage && (
+                <div className="profile-card">
+                    <p>{actionMessage}</p>
                 </div>
             )}
 
             {!loading && !error && (
                 <div className="profile-card">
-
-                    <h2>Learning Requests</h2>
+                    <h2>Requests</h2>
 
                     {requests.length === 0 ? (
-                        <div>
-                            <p>You have not sent any learning requests yet.</p>
-
-                            <Link to="/student/mentors">
-                                Find a Mentor
-                            </Link>
-                        </div>
+                        <p>
+                            You do not have any learning requests yet.
+                        </p>
                     ) : (
                         requests.map((request) => (
                             <div
                                 className="skill-card"
                                 key={request._id}
                             >
-                                <p>
-                                    <strong>Mentor:</strong>{" "}
+                                <h3>
                                     {request.mentorId?.name}
-                                </p>
+                                </h3>
 
                                 <p>
                                     <strong>Department:</strong>{" "}
@@ -113,7 +176,11 @@ function LearningRequests() {
 
                                 <p>
                                     <strong>Status:</strong>{" "}
-                                    <span className={getStatusClass(request.status)}>
+                                    <span
+                                        className={getStatusClass(
+                                            request.status
+                                        )}
+                                    >
                                         {request.status}
                                     </span>
                                 </p>
@@ -122,14 +189,114 @@ function LearningRequests() {
                                     <strong>Requested On:</strong>{" "}
                                     {new Date(
                                         request.createdAt
-                                    ).toLocaleString()}
+                                    ).toLocaleDateString()}
                                 </p>
+
+                                {request.status === "accepted" && (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleScheduleClick(request)
+                                        }
+                                    >
+                                        Schedule Session
+                                    </button>
+                                )}
                             </div>
                         ))
                     )}
-
                 </div>
             )}
+
+            {selectedRequest && (
+                <div className="profile-card">
+                    <h2>Schedule Session</h2>
+
+                    <p>
+                        <strong>Mentor:</strong>{" "}
+                        {selectedRequest.mentorId?.name}
+                    </p>
+
+                    <p>
+                        <strong>Skill:</strong>{" "}
+                        {selectedRequest.skillId?.skillName}
+                    </p>
+
+                    <form onSubmit={handleSchedule}>
+                        <div className="form-group">
+                            <label htmlFor="session-date">
+                                Date
+                            </label>
+
+                            <input
+                                id="session-date"
+                                type="date"
+                                value={date}
+                                onChange={(event) =>
+                                    setDate(event.target.value)
+                                }
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="session-time">
+                                Time
+                            </label>
+
+                            <input
+                                id="session-time"
+                                type="time"
+                                value={time}
+                                onChange={(event) =>
+                                    setTime(event.target.value)
+                                }
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="session-mode">
+                                Mode
+                            </label>
+
+                            <select
+                                id="session-mode"
+                                value={mode}
+                                onChange={(event) =>
+                                    setMode(event.target.value)
+                                }
+                                required
+                            >
+                                <option value="online">
+                                    Online
+                                </option>
+
+                                <option value="offline">
+                                    Offline
+                                </option>
+                            </select>
+                        </div>
+
+                        <button type="submit">
+                            Schedule Session
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleCancelSchedule}
+                        >
+                            Cancel
+                        </button>
+                    </form>
+                </div>
+            )}
+
+            <div className="profile-card">
+                <Link to="/student/mentors">
+                    Find More Mentors
+                </Link>
+            </div>
         </div>
     );
 }
