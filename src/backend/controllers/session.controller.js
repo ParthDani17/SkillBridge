@@ -240,4 +240,72 @@ const cancelSession = asyncHandler(async (req, res) => {
     );
 });
 
-export { createSession, getMySessions, completeSession, cancelSession };
+const rescheduleSession = asyncHandler(async (req, res) => {
+    const { date, time, mode } = req.body;
+
+    if (!date || !time) {
+        throw new ApiError(
+            400,
+            "Date and time are required for rescheduling"
+        );
+    }
+
+    const session = await Session.findById(req.params.id);
+
+    if (!session) {
+        throw new ApiError(
+            404,
+            "Session not found"
+        );
+    }
+
+    const isStudent =
+        session.studentId.toString() === req.user._id.toString();
+
+    const isMentor =
+        session.mentorId.toString() === req.user._id.toString();
+
+    if (!isStudent && !isMentor) {
+        throw new ApiError(
+            403,
+            "You are not allowed to reschedule this session"
+        );
+    }
+
+    if (session.status !== "scheduled") {
+        throw new ApiError(
+            400,
+            "Only scheduled sessions can be rescheduled"
+        );
+    }
+
+    session.date = date;
+    session.time = time;
+    if (mode && ["online", "offline"].includes(mode)) {
+        session.mode = mode;
+    }
+
+    await session.save();
+
+    if (isStudent) {
+        await Notification.create({
+            userId: session.mentorId,
+            message: `A session has been rescheduled by the student to ${date} at ${time}`
+        });
+    } else {
+        await Notification.create({
+            userId: session.studentId,
+            message: `A session has been rescheduled by the mentor to ${date} at ${time}`
+        });
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            session,
+            "Session rescheduled successfully"
+        )
+    );
+});
+
+export { createSession, getMySessions, completeSession, cancelSession, rescheduleSession };

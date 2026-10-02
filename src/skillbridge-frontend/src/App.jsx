@@ -124,6 +124,11 @@ function App() {
                             element={<Notifications />}
                         />
 
+                        <Route
+                            path="/mentor/skills"
+                            element={<MySkills />}
+                        />
+
                     </Route>
 
                     <Route element={<ProtectedRoute allowedRoles={["Administrator"]} />}>

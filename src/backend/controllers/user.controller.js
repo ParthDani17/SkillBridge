@@ -84,12 +84,12 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(403, "Your account has been suspended");
     }
      
-    if (user.role === "Mentor" && !user.isVerified) {
-        throw new ApiError(
-            403,
-            "Your mentor account is waiting for admin verification"
-        );
-    }
+    // if (user.role === "Mentor" && !user.isVerified) {
+    //     throw new ApiError(
+    //         403,
+    //         "Your mentor account is waiting for admin verification"
+    //     );
+    // }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
 

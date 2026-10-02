@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import {
-    createSession,getMySessions,completeSession,cancelSession
+    createSession,getMySessions,completeSession,cancelSession,rescheduleSession
 } from "../controllers/session.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -26,6 +26,11 @@ router.route("/:id/complete").patch(
 router.route("/:id/cancel").patch(
     verifyJWT,
     cancelSession
+);
+
+router.route("/:id/reschedule").patch(
+    verifyJWT,
+    rescheduleSession
 );
 
 export default router;

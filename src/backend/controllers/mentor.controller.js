@@ -9,38 +9,102 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const getAllMentors = asyncHandler(async (req, res) => {
 
-    const { skill } = req.query;
+    const {
+        search,
+        skill,
+        name,
+        department,
+        academicYear,
+        category,
+        proficiencyLevel,
+        availability,
+        minRating,
+        sortBy
+    } = req.query;
 
-    // Find matching skills if skill filter is provided
-    let profileIds = [];
+    const userQuery = {
+        role: "Mentor",
+        accountStatus: "active"
+    };
 
+    if (department) {
+        userQuery.department = department;
+    }
+
+    if (academicYear) {
+        userQuery.academicYear = Number(academicYear);
+    }
+
+    if (name) {
+        userQuery.name = {
+            $regex: name,
+            $options: "i"
+        };
+    }
+
+    const skillFilter = {};
     if (skill) {
+        skillFilter.skillName = {
+            $regex: skill,
+            $options: "i"
+        };
+    }
+    if (category) {
+        skillFilter.category = {
+            $regex: category,
+            $options: "i"
+        };
+    }
+    if (proficiencyLevel) {
+        skillFilter.proficiencyLevel = proficiencyLevel;
+    }
 
-        const skills = await Skill.find({
+    if (search && search.trim()) {
+        const matchingSkills = await Skill.find({
             skillName: {
-                $regex: skill,//pattern matching for skill name
-                $options: "i"//case-insensitive search
+                $regex: search.trim(),
+                $options: "i"
             }
         });
 
-        profileIds = skills.map(
-            skill => skill.profileId
+        const profileIdsFromSkill = matchingSkills.map(
+            s => s.profileId
         );
-    }
 
-    // Find mentors
-    const userQuery = {
-        role: "Mentor"
-    };
+        const profilesFromSkill = await Profile.find({
+            _id: { $in: profileIdsFromSkill }
+        });
 
-    if (skill) {
+        const userIdsFromSkill = profilesFromSkill.map(
+            p => p.userId
+        );
+
+        userQuery.$or = [
+            {
+                name: {
+                    $regex: search.trim(),
+                    $options: "i"
+                }
+            },
+            {
+                _id: {
+                    $in: userIdsFromSkill
+                }
+            }
+        ];
+    } else if (Object.keys(skillFilter).length > 0) {
+        const matchingSkills = await Skill.find(skillFilter);
+
+        const profileIds = matchingSkills.map(
+            s => s.profileId
+        );
 
         const profiles = await Profile.find({
             _id: { $in: profileIds }
         });
 
         const userIds = profiles.map(
-            profile => profile.userId
+            p => p.userId
         );
 
         userQuery._id = {
@@ -51,13 +115,31 @@ const getAllMentors = asyncHandler(async (req, res) => {
     const mentors = await User.find(userQuery)
         .select("-password -refreshToken");
 
-    const mentorData = [];
+    let mentorData = [];
 
     for (const mentor of mentors) {
-
-        const profile = await Profile.findOne({
+        const profileQuery = {
             userId: mentor._id
-        });
+        };
+
+        if (availability) {
+            profileQuery.availability = {
+                $regex: availability,
+                $options: "i"
+            };
+        }
+
+        if (minRating) {
+            profileQuery.averageRating = {
+                $gte: Number(minRating)
+            };
+        }
+
+        const profile = await Profile.findOne(profileQuery);
+
+        if ((availability || minRating) && !profile) {
+            continue;
+        }
 
         const skills = profile
             ? await Skill.find({
@@ -70,6 +152,12 @@ const getAllMentors = asyncHandler(async (req, res) => {
             profile,
             skills
         });
+    }
+
+    if (sortBy === "rating") {
+        mentorData.sort(
+            (a, b) => (b.profile?.averageRating || 0) - (a.profile?.averageRating || 0)
+        );
     }
 
     return res.status(200).json(

@@ -17,6 +17,11 @@ function MentorProfile() {
     const [error, setError] = useState("");
     const [requestMessage, setRequestMessage] = useState("");
 
+    const [showReportForm, setShowReportForm] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportMessage, setReportMessage] = useState("");
+    const [reportSubmitting, setReportSubmitting] = useState(false);
+
     useEffect(() => {
         getMentorData();
     }, [id]);
@@ -93,6 +98,32 @@ function MentorProfile() {
                 error.response?.data?.message ||
                 "Unable to send learning request."
             );
+        }
+    };
+
+    const handleReportSubmit = async (event) => {
+        event.preventDefault();
+        if (!reportReason.trim()) return;
+
+        setReportSubmitting(true);
+        setReportMessage("");
+
+        try {
+            await api.post("/reports", {
+                reportedUserId: mentor._id,
+                reason: reportReason.trim(),
+                contentType: "User"
+            });
+            setReportMessage("Report submitted successfully. Administrators will review it.");
+            setReportReason("");
+            setShowReportForm(false);
+        } catch (err) {
+            console.error("Error submitting report:", err);
+            setReportMessage(
+                err.response?.data?.message || "Failed to submit report."
+            );
+        } finally {
+            setReportSubmitting(false);
         }
     };
 
@@ -377,6 +408,80 @@ function MentorProfile() {
 
                 </form>
 
+            </div>
+
+            {/* Report Mentor */}
+            <div className="profile-card" style={{ border: "1px solid #fed7aa" }}>
+                <h2>Report Inappropriate Behavior</h2>
+                <p>
+                    If you encounter inappropriate behavior or content from this mentor, please report it to platform administrators.
+                </p>
+
+                {reportMessage && (
+                    <p style={{
+                        color: reportMessage.includes("successfully") ? "#16a34a" : "#dc2626",
+                        margin: "12px 0",
+                        fontWeight: "500"
+                    }}>
+                        {reportMessage}
+                    </p>
+                )}
+
+                {!showReportForm ? (
+                    <button
+                        type="button"
+                        onClick={() => setShowReportForm(true)}
+                        style={{
+                            backgroundColor: "#dc2626",
+                            color: "white",
+                            marginTop: "10px"
+                        }}
+                    >
+                        Report Mentor
+                    </button>
+                ) : (
+                    <form onSubmit={handleReportSubmit} style={{ marginTop: "15px" }}>
+                        <div className="form-group">
+                            <label htmlFor="reportReason">
+                                Reason for Reporting
+                            </label>
+                            <textarea
+                                id="reportReason"
+                                value={reportReason}
+                                onChange={(e) => setReportReason(e.target.value)}
+                                placeholder="Describe the issue or violation..."
+                                rows="4"
+                                required
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={reportSubmitting}
+                            style={{
+                                backgroundColor: "#dc2626",
+                                color: "white"
+                            }}
+                        >
+                            {reportSubmitting ? "Submitting..." : "Submit Report"}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowReportForm(false);
+                                setReportReason("");
+                            }}
+                            style={{
+                                marginLeft: "10px",
+                                backgroundColor: "#6b7280",
+                                color: "white"
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </form>
+                )}
             </div>
 
         </div>

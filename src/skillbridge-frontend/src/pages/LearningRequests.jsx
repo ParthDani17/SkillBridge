@@ -83,6 +83,32 @@ function LearningRequests() {
         }
     };
 
+    const handleCancelRequest = async (id) => {
+        const confirmed = window.confirm(
+            "Are you sure you want to cancel this learning request?"
+        );
+        if (!confirmed) return;
+
+        setActionMessage("");
+
+        try {
+            await api.patch(`/learning-requests/${id}/cancel`);
+            setActionMessage(
+                "Learning request cancelled successfully."
+            );
+            getRequests();
+        } catch (err) {
+            console.error(
+                "Error cancelling request:",
+                err.response?.data || err.message
+            );
+            setActionMessage(
+                err.response?.data?.message ||
+                "Unable to cancel learning request."
+            );
+        }
+    };
+
     const handleCancelSchedule = () => {
         setSelectedRequest(null);
         setDate("");
@@ -200,6 +226,18 @@ function LearningRequests() {
                                         }
                                     >
                                         Schedule Session
+                                    </button>
+                                )}
+
+                                {request.status === "pending" && (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            handleCancelRequest(request._id)
+                                        }
+                                        style={{ backgroundColor: "#dc2626", color: "#fff" }}
+                                    >
+                                        Cancel Request
                                     </button>
                                 )}
                             </div>

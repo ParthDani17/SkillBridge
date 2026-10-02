@@ -9,6 +9,11 @@ function StudentSessions() {
     const [rating, setRating] = useState("");
     const [comment, setComment] = useState("");
 
+    const [reschedulingSession, setReschedulingSession] = useState(null);
+    const [rescheduleDate, setRescheduleDate] = useState("");
+    const [rescheduleTime, setRescheduleTime] = useState("");
+    const [rescheduleMode, setRescheduleMode] = useState("online");
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [actionMessage, setActionMessage] = useState("");
@@ -95,6 +100,36 @@ function StudentSessions() {
             setActionMessage(
                 error.response?.data?.message ||
                 "Unable to cancel session."
+            );
+        }
+    };
+
+    const handleRescheduleClick = (session) => {
+        setReschedulingSession(session);
+        setRescheduleDate(session.date ? session.date.substring(0, 10) : "");
+        setRescheduleTime(session.time || "");
+        setRescheduleMode(session.mode || "online");
+        setActionMessage("");
+    };
+
+    const handleRescheduleSubmit = async (e) => {
+        e.preventDefault();
+        if (!reschedulingSession) return;
+        setActionMessage("");
+        try {
+            await api.patch(`/sessions/${reschedulingSession._id}/reschedule`, {
+                date: rescheduleDate,
+                time: rescheduleTime,
+                mode: rescheduleMode
+            });
+            setActionMessage("Session rescheduled successfully.");
+            setReschedulingSession(null);
+            getSessions();
+        } catch (err) {
+            console.error("Error rescheduling session:", err);
+            setActionMessage(
+                err.response?.data?.message ||
+                "Unable to reschedule session."
             );
         }
     };
@@ -224,7 +259,7 @@ function StudentSessions() {
 
                         <p>
                             <strong>Date:</strong>{" "}
-                            {session.date}
+                            {new Date(session.date).toLocaleDateString()}
                         </p>
 
                         <p>
@@ -264,10 +299,23 @@ function StudentSessions() {
                                 <button
                                     type="button"
                                     onClick={() =>
+                                        handleRescheduleClick(
+                                            session
+                                        )
+                                    }
+                                    style={{ marginLeft: "8px" }}
+                                >
+                                    Reschedule
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
                                         handleCancel(
                                             session._id
                                         )
                                     }
+                                    style={{ marginLeft: "8px" }}
                                 >
                                     Cancel Session
                                 </button>
@@ -404,6 +452,63 @@ function StudentSessions() {
                             Cancel
                         </button>
 
+                    </form>
+                </div>
+            )}
+
+            {reschedulingSession && (
+                <div className="profile-card">
+                    <h2>Reschedule Session</h2>
+
+                    <p>
+                        <strong>Mentor:</strong>{" "}
+                        {reschedulingSession.mentorId?.name}
+                    </p>
+
+                    <form onSubmit={handleRescheduleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="reschedule-date">New Date</label>
+                            <input
+                                id="reschedule-date"
+                                type="date"
+                                value={rescheduleDate}
+                                onChange={(e) => setRescheduleDate(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="reschedule-time">New Time</label>
+                            <input
+                                id="reschedule-time"
+                                type="time"
+                                value={rescheduleTime}
+                                onChange={(e) => setRescheduleTime(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="reschedule-mode">Mode</label>
+                            <select
+                                id="reschedule-mode"
+                                value={rescheduleMode}
+                                onChange={(e) => setRescheduleMode(e.target.value)}
+                                required
+                            >
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+
+                        <button type="submit">Confirm Reschedule</button>
+                        <button
+                            type="button"
+                            onClick={() => setReschedulingSession(null)}
+                            style={{ marginLeft: "10px" }}
+                        >
+                            Cancel
+                        </button>
                     </form>
                 </div>
             )}

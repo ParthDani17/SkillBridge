@@ -198,6 +198,13 @@ function MentorDashboard() {
                     </Link>
 
                     <Link
+                        to="/mentor/skills"
+                        className="dashboard-action"
+                    >
+                        Manage Skills
+                    </Link>
+
+                    <Link
                         to="/mentor/notifications"
                         className="dashboard-action"
                     >

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 
 function MentorProfilePage() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     const [bio, setBio] = useState("");
     const [availability, setAvailability] = useState("");
@@ -127,6 +129,25 @@ function MentorProfilePage() {
             );
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        const confirmed = window.confirm(
+            "Are you sure you want to permanently delete your account? This action cannot be undone."
+        );
+        if (!confirmed) return;
+
+        try {
+            await api.delete("/profile");
+            logout();
+            navigate("/login");
+        } catch (err) {
+            console.error("Error deleting account:", err);
+            setError(
+                err.response?.data?.message ||
+                "Failed to delete account."
+            );
         }
     };
 
@@ -335,7 +356,12 @@ function MentorProfilePage() {
 
             {/* My Skills */}
             <div className="profile-card">
-                <h2>My Skills</h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                    <h2>My Skills</h2>
+                    <Link to="/mentor/skills" className="dashboard-action" style={{ padding: "8px 16px", textDecoration: "none" }}>
+                        Manage Skills
+                    </Link>
+                </div>
 
                 {skills.length === 0 ? (
                     <p>
@@ -400,6 +426,18 @@ function MentorProfilePage() {
                         </div>
                     ))
                 )}
+            </div>
+
+            <div className="profile-card" style={{ borderTop: "2px solid #ef4444" }}>
+                <h2>Danger Zone</h2>
+                <p>Permanently delete your account and all associated profile data.</p>
+                <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    style={{ backgroundColor: "#dc2626", color: "#fff", marginTop: "10px" }}
+                >
+                    Delete Account
+                </button>
             </div>
 
         </div>

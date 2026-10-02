@@ -101,6 +101,10 @@ function Navbar() {
                                     My Profile
                                 </Link>
 
+                                <Link to="/mentor/skills">
+                                    My Skills
+                                </Link>
+
                                 <Link to="/mentor/requests">
                                     Requests
                                 </Link>

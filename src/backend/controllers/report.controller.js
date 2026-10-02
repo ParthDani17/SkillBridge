@@ -1,5 +1,7 @@
 import Report from "../models/Report.js";
 import User from "../models/User.js";
+import Skill from "../models/Skill.js";
+import Review from "../models/Review.js";
 
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -193,17 +195,18 @@ const handleReport = asyncHandler(async (req, res) => {
 
 
     if (action === "removed") {
-
-        if (!report.reportedUserId) {
+        if (report.contentType === "Skill" && report.reportedContentId) {
+            await Skill.findByIdAndDelete(report.reportedContentId);
+        } else if (report.contentType === "Review" && report.reportedContentId) {
+            await Review.findByIdAndDelete(report.reportedContentId);
+        } else if (report.reportedUserId) {
+            await User.findByIdAndDelete(report.reportedUserId);
+        } else {
             throw new ApiError(
                 400,
-                "This report does not contain a reported user"
+                "This report does not contain removable user or content"
             );
         }
-
-        await User.findByIdAndDelete(
-            report.reportedUserId
-        );
     }
 
 
