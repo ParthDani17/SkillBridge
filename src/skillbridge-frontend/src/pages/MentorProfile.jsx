@@ -170,6 +170,23 @@ function MentorProfile() {
 
                 <h2>Personal Information</h2>
 
+                {mentor.profilePicture ? (
+                    <div style={{ marginBottom: "20px" }}>
+                        <img
+                            src={mentor.profilePicture}
+                            alt={mentor.name || "Mentor"}
+                            style={{
+                                width: "120px",
+                                height: "120px",
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                border: "3px solid #1e3a8a",
+                                display: "block"
+                            }}
+                        />
+                    </div>
+                ) : null}
+
                 <p>
                     <strong>Email:</strong>{" "}
                     {mentor.email}

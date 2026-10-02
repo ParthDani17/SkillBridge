@@ -6,6 +6,7 @@ import api from "../services/api";
 function MentorProfilePage() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [currentUser, setCurrentUser] = useState(user);
 
     const [bio, setBio] = useState("");
     const [availability, setAvailability] = useState("");
@@ -39,12 +40,18 @@ function MentorProfilePage() {
             const [
                 profileResponse,
                 skillsResponse,
-                reviewsResponse
+                reviewsResponse,
+                meResponse
             ] = await Promise.all([
                 api.get("/profile"),
                 api.get("/skills/my"),
-                api.get(`/reviews/mentor/${user._id}`)
+                api.get(`/reviews/mentor/${user._id}`),
+                api.get("/users/me").catch(() => null)
             ]);
+
+            if (meResponse?.data?.data) {
+                setCurrentUser(meResponse.data.data);
+            }
 
             const profile = profileResponse.data.data;
 
@@ -179,26 +186,43 @@ function MentorProfilePage() {
             <div className="profile-card">
                 <h2>Personal Information</h2>
 
+                {currentUser?.profilePicture ? (
+                    <div style={{ marginBottom: "20px" }}>
+                        <img
+                            src={currentUser.profilePicture}
+                            alt={currentUser.name || "Profile"}
+                            style={{
+                                width: "120px",
+                                height: "120px",
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                border: "3px solid #1e3a8a",
+                                display: "block"
+                            }}
+                        />
+                    </div>
+                ) : null}
+
                 <div className="profile-info">
 
                     <p>
-                        <strong>Name:</strong> {user?.name}
+                        <strong>Name:</strong> {currentUser?.name || user?.name}
                     </p>
 
                     <p>
-                        <strong>Email:</strong> {user?.email}
+                        <strong>Email:</strong> {currentUser?.email || user?.email}
                     </p>
 
                     <p>
-                        <strong>Department:</strong> {user?.department}
+                        <strong>Department:</strong> {currentUser?.department || user?.department}
                     </p>
 
                     <p>
-                        <strong>Academic Year:</strong> {user?.academicYear}
+                        <strong>Academic Year:</strong> {currentUser?.academicYear || user?.academicYear}
                     </p>
 
                     <p>
-                        <strong>Role:</strong> {user?.role}
+                        <strong>Role:</strong> {currentUser?.role || user?.role}
                     </p>
 
                 </div>
