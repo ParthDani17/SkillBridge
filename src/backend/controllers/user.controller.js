@@ -80,6 +80,10 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid email or password");
     }
 
+    if (user.accountStatus === "suspended") {
+        throw new ApiError(403, "Your account has been suspended");
+    }
+     
     const isPasswordValid = await user.isPasswordCorrect(password);
 
     if (!isPasswordValid) {

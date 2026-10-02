@@ -31,11 +31,20 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
             throw new ApiError(401, "Invalid access token");
         }
 
+        if (user.accountStatus === "suspended") {
+            throw new ApiError(403, "Your account has been suspended");
+        }
+
         req.user = user;
 
         next();
 
     } catch (error) {
+        
+        if (error instanceof ApiError) {
+            throw error;
+        }
+
         throw new ApiError(401, error?.message || "Invalid access token");
     }
 });
