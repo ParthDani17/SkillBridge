@@ -60,3 +60,15 @@ app.use("/api/v1/reports",reportRouter);
 
 import analyticsRouter from "./routes/analytics.routes.js";
 app.use("/api/v1/analytics",analyticsRouter);
+
+app.use((err, req, res, next) => {
+
+    const statusCode = err.statusCode || 500;
+
+    return res.status(statusCode).json({
+        statusCode,
+        data: null,
+        message: err.message || "Internal Server Error",
+        success: false
+    });
+});
