@@ -239,7 +239,7 @@ function Mentors() {
                                 <p>
                                     <strong>Rating:</strong>{" "}
                                     {item.profile?.averageRating
-                                        ? `⭐ ${item.profile.averageRating.toFixed(1)} / 5 (${item.profile.totalReviews || 0} reviews)`
+                                        ? `⭐ ${item.profile.averageRating.toFixed(1)} / 5 (${item.profile?.totalReviews ?? item.totalReviews ?? 0} reviews)`
                                         : "No ratings yet"}
                                 </p>
 

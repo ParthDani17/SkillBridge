@@ -124,6 +124,7 @@ const createReview = asyncHandler(async (req, res) => {
 
     // Update mentor's profile
     mentorProfile.averageRating = averageRating;
+    mentorProfile.totalReviews = mentorReviews.length;
 
     await mentorProfile.save();
 
@@ -236,6 +237,7 @@ const deleteReview = asyncHandler(async (req, res) => {
 
     if (mentorProfile) {
         mentorProfile.averageRating = averageRating;
+        mentorProfile.totalReviews = mentorReviews.length;
         await mentorProfile.save();
     }
 

@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import Profile from "../models/Profile.js";
 import Skill from "../models/Skill.js";
+import Review from "../models/Review.js";
 
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -147,10 +148,18 @@ const getAllMentors = asyncHandler(async (req, res) => {
             })
             : [];
 
+        const totalReviews = await Review.countDocuments({
+            mentorId: mentor._id
+        });
+
+        const profileObj = profile ? profile.toObject() : {};
+        profileObj.totalReviews = totalReviews;
+
         mentorData.push({
             mentor,
-            profile,
-            skills
+            profile: profileObj,
+            skills,
+            totalReviews
         });
     }
 
@@ -187,6 +196,13 @@ const getMentorById = asyncHandler(async (req, res) => {
         userId: mentor._id
     });
 
+    const totalReviews = await Review.countDocuments({
+        mentorId: mentor._id
+    });
+
+    const profileObj = profile ? profile.toObject() : {};
+    profileObj.totalReviews = totalReviews;
+
     const skills = profile
         ? await Skill.find({
             profileId: profile._id
@@ -198,8 +214,9 @@ const getMentorById = asyncHandler(async (req, res) => {
             200,
             {
                 mentor,
-                profile,
-                skills
+                profile: profileObj,
+                skills,
+                totalReviews
             },
             "Mentor fetched successfully"
         )
