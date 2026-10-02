@@ -26,7 +26,16 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All required fields are required");
     }
 
-    const existingUser = await User.findOne({ email });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        throw new ApiError(400, "Please provide a valid college email address");
+    }
+
+    if (password.length < 6) {
+        throw new ApiError(400, "Password must be at least 6 characters long");
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (existingUser) {
         throw new ApiError(409, "User with this email already exists");

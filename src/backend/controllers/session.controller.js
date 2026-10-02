@@ -73,6 +73,30 @@ const createSession = asyncHandler(async (req, res) => {
         );
     }
 
+    // Validate session date is not in the past
+    const sessionDateTime = new Date(`${date}T${time}`);
+    const sessionDateParsed = isNaN(sessionDateTime.getTime()) ? new Date(date) : sessionDateTime;
+    const now = new Date();
+    now.setSeconds(0, 0);
+    if (!isNaN(sessionDateParsed.getTime()) && sessionDateParsed < now) {
+        throw new ApiError(400, "Cannot schedule a session in the past");
+    }
+
+    // Check for conflicting session with the same mentor at the same date and time
+    const conflictingSession = await Session.findOne({
+        mentorId: learningRequest.mentorId,
+        date,
+        time,
+        status: "scheduled"
+    });
+
+    if (conflictingSession) {
+        throw new ApiError(
+            409,
+            "The mentor already has a scheduled session at this date and time"
+        );
+    }
+
     // Create the session
     const session = await Session.create({
         learningRequestId,
@@ -276,6 +300,31 @@ const rescheduleSession = asyncHandler(async (req, res) => {
         throw new ApiError(
             400,
             "Only scheduled sessions can be rescheduled"
+        );
+    }
+
+    // Validate date is not in the past
+    const sessionDateTime = new Date(`${date}T${time}`);
+    const sessionDateParsed = isNaN(sessionDateTime.getTime()) ? new Date(date) : sessionDateTime;
+    const now = new Date();
+    now.setSeconds(0, 0);
+    if (!isNaN(sessionDateParsed.getTime()) && sessionDateParsed < now) {
+        throw new ApiError(400, "Cannot reschedule a session to a past date or time");
+    }
+
+    // Check for conflicting session with the same mentor at the new date and time
+    const conflictingSession = await Session.findOne({
+        _id: { $ne: session._id },
+        mentorId: session.mentorId,
+        date,
+        time,
+        status: "scheduled"
+    });
+
+    if (conflictingSession) {
+        throw new ApiError(
+            409,
+            "The mentor already has another scheduled session at this date and time"
         );
     }
 

@@ -1,5 +1,10 @@
 import Profile from "../models/Profile.js";
 import User from "../models/User.js";
+import Skill from "../models/Skill.js";
+import LearningRequest from "../models/LearningRequest.js";
+import Session from "../models/Session.js";
+import Review from "../models/Review.js";
+import Notification from "../models/Notification.js";
 
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -137,14 +142,34 @@ const updateProfile = asyncHandler(async (req, res) => {
 });
 
 const deleteAccount = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
 
-    await Profile.findOneAndDelete({
-        userId: req.user._id
+    // 1. Delete user profile and skills
+    const profile = await Profile.findOne({ userId });
+    if (profile) {
+        await Skill.deleteMany({ profileId: profile._id });
+        await Profile.findByIdAndDelete(profile._id);
+    }
+
+    // 2. Cascade delete requests, sessions, and reviews involving this user
+    await LearningRequest.deleteMany({
+        $or: [{ studentId: userId }, { mentorId: userId }]
     });
 
-    await User.findByIdAndDelete(
-        req.user._id
-    );
+    await Session.deleteMany({
+        $or: [{ studentId: userId }, { mentorId: userId }]
+    });
+
+    await Review.deleteMany({
+        $or: [{ studentId: userId }, { mentorId: userId }]
+    });
+
+    await Notification.deleteMany({
+        userId
+    });
+
+    // 3. Delete the user account
+    await User.findByIdAndDelete(userId);
 
     return res.status(200).json(
         new ApiResponse(

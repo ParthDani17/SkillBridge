@@ -82,6 +82,37 @@ const createLearningRequest = asyncHandler(async (req, res) => {
         );
     }
 
+    // Prevent sending request to oneself
+    if (mentorId.toString() === req.user._id.toString()) {
+        throw new ApiError(
+            400,
+            "You cannot send a learning request to yourself"
+        );
+    }
+
+    // Check if mentor is suspended
+    if (mentor.accountStatus === "suspended") {
+        throw new ApiError(
+            400,
+            "This mentor account is currently suspended"
+        );
+    }
+
+    // Check for existing pending request
+    const existingPendingRequest = await LearningRequest.findOne({
+        studentId: req.user._id,
+        mentorId,
+        skillId,
+        status: "pending"
+    });
+
+    if (existingPendingRequest) {
+        throw new ApiError(
+            409,
+            "You already have a pending learning request for this skill with this mentor"
+        );
+    }
+
     // Create learning request
     const learningRequest = await LearningRequest.create({
         studentId: req.user._id,
