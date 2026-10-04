@@ -5,10 +5,30 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 const app = express();
+
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim().replace(/\/$/, ""))
+    : ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"];
+
 app.use(cors({
-    origin : process.env.CORS_ORIGIN,
-    credentials : true //allows credentials such as cookies to be sent with requests
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        const cleanOrigin = origin.replace(/\/$/, "");
+        if (allowedOrigins.includes("*") || allowedOrigins.includes(cleanOrigin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`CORS origin ${origin} not allowed by SkillBridge server`));
+    },
+    credentials: true
 }));
+
+app.get("/", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "SkillBridge API is running and healthy",
+        timestamp: new Date().toISOString()
+    });
+});
 
 
 app.use(express.json({limit: "10mb"}));
