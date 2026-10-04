@@ -26,9 +26,9 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All required fields are required");
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        throw new ApiError(400, "Please provide a valid college email address");
+    const collegeEmailRegex = /^[a-zA-Z0-9._%+-]+@ddu\.ac\.in$/i;
+    if (!collegeEmailRegex.test(email.trim())) {
+        throw new ApiError(400, "Only official college email addresses (@ddu.ac.in) are allowed to register");
     }
 
     if (password.length < 6) {

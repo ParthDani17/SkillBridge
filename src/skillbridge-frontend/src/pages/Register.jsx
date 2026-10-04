@@ -44,6 +44,12 @@ function Register() {
 
         setMessage("");
         setError("");
+
+        if (!formData.email.trim().toLowerCase().endsWith("@ddu.ac.in")) {
+            setError("Registration requires an official university email address (@ddu.ac.in).");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -145,7 +151,7 @@ function Register() {
                     <div className="form-group">
 
                         <label htmlFor="email">
-                            Email
+                            College Email (@ddu.ac.in)
                         </label>
 
                         <input
@@ -154,7 +160,7 @@ function Register() {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Enter your email"
+                            placeholder="e.g. yourname@ddu.ac.in"
                             required
                         />
 
