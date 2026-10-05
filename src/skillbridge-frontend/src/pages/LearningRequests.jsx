@@ -235,7 +235,7 @@ function LearningRequests() {
                                         onClick={() =>
                                             handleCancelRequest(request._id)
                                         }
-                                        style={{ backgroundColor: "#dc2626", color: "#fff" }}
+                                        style={{ backgroundColor: "#8B0000", color: "#fff" }}
                                     >
                                         Cancel Request
                                     </button>

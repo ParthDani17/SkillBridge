@@ -168,7 +168,7 @@ function StudentProfile() {
                                 height: "120px",
                                 borderRadius: "50%",
                                 objectFit: "cover",
-                                border: "3px solid #1e3a8a",
+                                border: "3px solid #2C2C2C",
                                 display: "block"
                             }}
                         />
@@ -319,13 +319,13 @@ function StudentProfile() {
                 </form>
             </div>
 
-            <div className="profile-card" style={{ borderTop: "2px solid #ef4444" }}>
+            <div className="profile-card" style={{ borderTop: "2px solid #8B0000" }}>
                 <h2>Danger Zone</h2>
                 <p>Permanently delete your account and all associated profile data.</p>
                 <button
                     type="button"
                     onClick={handleDeleteAccount}
-                    style={{ backgroundColor: "#dc2626", color: "#fff", marginTop: "10px" }}
+                    style={{ backgroundColor: "#8B0000", color: "#fff", marginTop: "10px" }}
                 >
                     Delete Account
                 </button>

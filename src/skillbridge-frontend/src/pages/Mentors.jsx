@@ -180,9 +180,10 @@ function Mentors() {
                             type="button"
                             onClick={handleToggleTopMentors}
                             style={{
-                                backgroundColor: isTopMentors ? "#f59e0b" : "#e5e7eb",
-                                color: isTopMentors ? "#ffffff" : "#1f2937",
-                                fontWeight: isTopMentors ? "bold" : "normal"
+                                backgroundColor: isTopMentors ? "#f59e0b" : "#E5E5E5",
+                                color: isTopMentors ? "#ffffff" : "#1A1A1A",
+                                fontWeight: isTopMentors ? "bold" : "normal",
+                                border: "1px solid " + (isTopMentors ? "#f59e0b" : "#CBD5E1")
                             }}
                         >
                             {isTopMentors ? "★ Top Mentors (Active)" : "★ Top Mentors"}

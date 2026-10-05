@@ -180,7 +180,7 @@ function MentorProfile() {
                                 height: "120px",
                                 borderRadius: "50%",
                                 objectFit: "cover",
-                                border: "3px solid #1e3a8a",
+                                border: "3px solid #2C2C2C",
                                 display: "block"
                             }}
                         />
@@ -428,7 +428,7 @@ function MentorProfile() {
             </div>
 
             {/* Report Mentor */}
-            <div className="profile-card" style={{ border: "1px solid #fed7aa" }}>
+            <div className="profile-card" style={{ border: "1px solid #D1C7BD" }}>
                 <h2>Report Inappropriate Behavior</h2>
                 <p>
                     If you encounter inappropriate behavior or content from this mentor, please report it to platform administrators.
@@ -436,7 +436,7 @@ function MentorProfile() {
 
                 {reportMessage && (
                     <p style={{
-                        color: reportMessage.includes("successfully") ? "#16a34a" : "#dc2626",
+                        color: reportMessage.includes("successfully") ? "#556B2F" : "#8B0000",
                         margin: "12px 0",
                         fontWeight: "500"
                     }}>
@@ -449,7 +449,7 @@ function MentorProfile() {
                         type="button"
                         onClick={() => setShowReportForm(true)}
                         style={{
-                            backgroundColor: "#dc2626",
+                            backgroundColor: "#8B0000",
                             color: "white",
                             marginTop: "10px"
                         }}
@@ -476,7 +476,7 @@ function MentorProfile() {
                             type="submit"
                             disabled={reportSubmitting}
                             style={{
-                                backgroundColor: "#dc2626",
+                                backgroundColor: "#8B0000",
                                 color: "white"
                             }}
                         >
@@ -491,7 +491,7 @@ function MentorProfile() {
                             }}
                             style={{
                                 marginLeft: "10px",
-                                backgroundColor: "#6b7280",
+                                backgroundColor: "#708090",
                                 color: "white"
                             }}
                         >

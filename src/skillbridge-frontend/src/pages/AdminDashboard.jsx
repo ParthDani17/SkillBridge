@@ -225,15 +225,11 @@ function AdminDashboard() {
             {actionMessage && <p className="success-message">{actionMessage}</p>}
 
             {/* Navigation Tabs */}
-            <div style={{ display: "flex", gap: "10px", marginBottom: "25px", borderBottom: "2px solid #e5e7eb", paddingBottom: "12px", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "25px", borderBottom: "2px solid #CBD5E1", paddingBottom: "12px", flexWrap: "wrap" }}>
                 <button
                     type="button"
                     onClick={() => setActiveTab("users")}
-                    style={{
-                        backgroundColor: activeTab === "users" ? "#1e3a8a" : "#f3f4f6",
-                        color: activeTab === "users" ? "#ffffff" : "#374151",
-                        fontWeight: activeTab === "users" ? "bold" : "normal"
-                    }}
+                    className={`admin-tab-btn ${activeTab === "users" ? "active" : ""}`}
                 >
                     User Management
                 </button>
@@ -241,11 +237,7 @@ function AdminDashboard() {
                 <button
                     type="button"
                     onClick={() => setActiveTab("reports")}
-                    style={{
-                        backgroundColor: activeTab === "reports" ? "#1e3a8a" : "#f3f4f6",
-                        color: activeTab === "reports" ? "#ffffff" : "#374151",
-                        fontWeight: activeTab === "reports" ? "bold" : "normal"
-                    }}
+                    className={`admin-tab-btn ${activeTab === "reports" ? "active" : ""}`}
                 >
                     Reports Moderation
                 </button>
@@ -253,11 +245,7 @@ function AdminDashboard() {
                 <button
                     type="button"
                     onClick={() => setActiveTab("analytics")}
-                    style={{
-                        backgroundColor: activeTab === "analytics" ? "#1e3a8a" : "#f3f4f6",
-                        color: activeTab === "analytics" ? "#ffffff" : "#374151",
-                        fontWeight: activeTab === "analytics" ? "bold" : "normal"
-                    }}
+                    className={`admin-tab-btn ${activeTab === "analytics" ? "active" : ""}`}
                 >
                     Platform Analytics
                 </button>
@@ -304,27 +292,43 @@ function AdminDashboard() {
                                     <p><strong>Account Status:</strong> {user.accountStatus}</p>
                                     <p><strong>Registered:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
 
-                                    <div>
+                                    <div style={{ marginTop: "12px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
                                         {!user.isVerified && user.role !== "Administrator" && (
-                                            <button type="button" onClick={() => handleVerify(user._id)}>
+                                            <button
+                                                type="button"
+                                                className="admin-btn admin-btn-verify"
+                                                onClick={() => handleVerify(user._id)}
+                                            >
                                                 Verify
                                             </button>
                                         )}
 
                                         {user.role !== "Administrator" && user.accountStatus === "active" && (
-                                            <button type="button" onClick={() => handleSuspend(user._id)}>
+                                            <button
+                                                type="button"
+                                                className="admin-btn admin-btn-suspend"
+                                                onClick={() => handleSuspend(user._id)}
+                                            >
                                                 Suspend
                                             </button>
                                         )}
 
                                         {user.role !== "Administrator" && user.accountStatus === "suspended" && (
-                                            <button type="button" onClick={() => handleActivate(user._id)}>
+                                            <button
+                                                type="button"
+                                                className="admin-btn admin-btn-activate"
+                                                onClick={() => handleActivate(user._id)}
+                                            >
                                                 Activate
                                             </button>
                                         )}
 
                                         {user.role !== "Administrator" && (
-                                            <button type="button" onClick={() => handleRemove(user._id)}>
+                                            <button
+                                                type="button"
+                                                className="admin-btn admin-btn-danger"
+                                                onClick={() => handleRemove(user._id)}
+                                            >
                                                 Remove
                                             </button>
                                         )}
@@ -348,10 +352,7 @@ function AdminDashboard() {
                                     setReportsFilter("pending");
                                     getReports("pending");
                                 }}
-                                style={{
-                                    backgroundColor: reportsFilter === "pending" ? "#1e3a8a" : "#f3f4f6",
-                                    color: reportsFilter === "pending" ? "#ffffff" : "#374151"
-                                }}
+                                className={`admin-filter-btn ${reportsFilter === "pending" ? "active" : ""}`}
                             >
                                 Pending Reports
                             </button>
@@ -361,10 +362,7 @@ function AdminDashboard() {
                                     setReportsFilter("all");
                                     getReports("all");
                                 }}
-                                style={{
-                                    backgroundColor: reportsFilter === "all" ? "#1e3a8a" : "#f3f4f6",
-                                    color: reportsFilter === "all" ? "#ffffff" : "#374151"
-                                }}
+                                className={`admin-filter-btn ${reportsFilter === "all" ? "active" : ""}`}
                             >
                                 All Reports
                             </button>
@@ -377,7 +375,7 @@ function AdminDashboard() {
                         <p>No {reportsFilter} reports found.</p>
                     ) : (
                         reports.map((report) => (
-                            <div className="skill-card" key={report._id} style={{ borderLeft: report.status === "pending" ? "4px solid #ef4444" : "4px solid #10b981" }}>
+                            <div className="skill-card" key={report._id} style={{ borderLeft: report.status === "pending" ? "4px solid #8B0000" : "4px solid #556B2F" }}>
                                 <h3>Reason: {report.reason}</h3>
                                 <p><strong>Status:</strong> <span style={{ textTransform: "capitalize", fontWeight: "bold" }}>{report.status}</span></p>
                                 <p><strong>Action Taken:</strong> <span style={{ textTransform: "capitalize" }}>{report.action || "None"}</span></p>
@@ -385,7 +383,7 @@ function AdminDashboard() {
                                 <p><strong>Reported By:</strong> {report.reporterId?.name || "Anonymous"} ({report.reporterId?.email})</p>
 
                                 {report.reportedUserId && (
-                                    <div style={{ margin: "10px 0", padding: "10px", backgroundColor: "#f9fafb", borderRadius: "6px" }}>
+                                    <div style={{ margin: "10px 0", padding: "10px", backgroundColor: "#F5F2F0", borderRadius: "6px", border: "1px solid #E2E8F0" }}>
                                         <p><strong>Reported User:</strong> {report.reportedUserId.name} ({report.reportedUserId.email})</p>
                                         <p><strong>Role:</strong> {report.reportedUserId.role}</p>
                                         <p><strong>Current Status:</strong> {report.reportedUserId.accountStatus}</p>
@@ -393,12 +391,12 @@ function AdminDashboard() {
                                 )}
 
                                 {report.status === "pending" && (
-                                    <div style={{ marginTop: "12px" }}>
+                                    <div style={{ marginTop: "14px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
                                         {report.reportedUserId && report.reportedUserId.accountStatus !== "suspended" && (
                                             <button
                                                 type="button"
+                                                className="admin-btn admin-btn-danger"
                                                 onClick={() => handleSuspendUserViaReport(report._id)}
-                                                style={{ backgroundColor: "#dc2626", color: "white" }}
                                             >
                                                 Suspend User
                                             </button>
@@ -406,16 +404,16 @@ function AdminDashboard() {
 
                                         <button
                                             type="button"
+                                            className="admin-btn admin-btn-danger"
                                             onClick={() => handleRemoveContentViaReport(report._id)}
-                                            style={{ backgroundColor: "#b91c1c", color: "white", marginLeft: "8px" }}
                                         >
                                             Remove Entity
                                         </button>
 
                                         <button
                                             type="button"
+                                            className="admin-btn admin-btn-dismiss"
                                             onClick={() => handleDismissReport(report._id)}
-                                            style={{ backgroundColor: "#6b7280", color: "white", marginLeft: "8px" }}
                                         >
                                             Dismiss Report
                                         </button>
@@ -484,9 +482,9 @@ function AdminDashboard() {
                                             >
                                                 <div>
                                                     <h3 style={{ margin: 0 }}>#{index + 1} {skill.skillName || "Untitled Skill"}</h3>
-                                                    <p style={{ margin: "4px 0 0 0", color: "#6b7280" }}>Category: {skill.category || "General"}</p>
+                                                    <p style={{ margin: "4px 0 0 0", color: "#6D6258" }}>Category: {skill.category || "General"}</p>
                                                 </div>
-                                                <div style={{ fontSize: "18px", fontWeight: "bold", color: "#1e3a8a" }}>
+                                                <div style={{ fontSize: "18px", fontWeight: "bold", color: "#2C2C2C" }}>
                                                     {skill.requestCount} requests
                                                 </div>
                                             </div>
