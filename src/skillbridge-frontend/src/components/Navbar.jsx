@@ -39,11 +39,9 @@ function Navbar() {
         <nav className="navbar">
 
             <div className="navbar-logo">
-
                 <Link to="/">
-                    SkillBridge
+                    Skill<span className="navbar-brand-accent">Bridge</span>
                 </Link>
-
             </div>
 
             <div className="navbar-links">
