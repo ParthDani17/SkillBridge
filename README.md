@@ -514,11 +514,11 @@ npm run dev
 
 For quick evaluation across all three platform roles:
 
-| Role | Email | Password | Permissions & Capabilities |
-| :--- | :--- | :--- | :--- |
-| **Student** | `alicesmith@ddu.ac.in` | `Password123!` | Discover mentors, dispatch learning requests, schedule sessions, write reviews |
-| **Mentor** | `johndoe@ddu.ac.in` | `Password123!` | Manage offered skills, accept/reject requests, coordinate sessions, build rating |
-| **Administrator** |  | | Audit & verify student accounts, suspend bad actors, moderate reports, view analytics |
+| Role | Permissions & Capabilities |
+| :--- | :--- |
+| **Student** |  Discover mentors, dispatch learning requests, schedule sessions, write reviews |
+| **Mentor** |  Manage offered skills, accept/reject requests, coordinate sessions, build rating |
+| **Administrator** |  Audit & verify student accounts, suspend bad actors, moderate reports, view analytics |
 
 ---
 
