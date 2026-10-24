@@ -31,7 +31,7 @@ function MySkills() {
                 error.response?.data || error.message
             );
 
-            setError("Unable to load your skills.");
+            setError("Unable to load your skills, please create your profile first.");
         } finally {
             setLoading(false);
         }
