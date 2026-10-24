@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
+import { DEPARTMENTS } from "../constants/departments.js";
 
 function Register() {
 
@@ -44,11 +45,6 @@ function Register() {
 
         setMessage("");
         setError("");
-
-        if (!formData.email.trim().toLowerCase().endsWith("@ddu.ac.in")) {
-            setError("Registration requires an official university email address (@ddu.ac.in).");
-            return;
-        }
 
         setLoading(true);
 
@@ -151,7 +147,7 @@ function Register() {
                     <div className="form-group">
 
                         <label htmlFor="email">
-                            College Email (@ddu.ac.in)
+                            Email Address
                         </label>
 
                         <input
@@ -160,7 +156,7 @@ function Register() {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="e.g. yourname@ddu.ac.in"
+                            placeholder="e.g. yourname@example.com"
                             required
                         />
 
@@ -190,15 +186,20 @@ function Register() {
                             Department
                         </label>
 
-                        <input
-                            type="text"
+                        <select
                             id="department"
                             name="department"
                             value={formData.department}
                             onChange={handleChange}
-                            placeholder="Enter your department"
                             required
-                        />
+                        >
+                            <option value="">Select Department</option>
+                            {DEPARTMENTS.map((dept) => (
+                                <option key={dept} value={dept}>
+                                    {dept}
+                                </option>
+                            ))}
+                        </select>
 
                     </div>
 
@@ -208,16 +209,20 @@ function Register() {
                             Academic Year
                         </label>
 
-                        <input
-                            type="number"
+                        <select
                             id="academicYear"
                             name="academicYear"
                             value={formData.academicYear}
                             onChange={handleChange}
-                            placeholder="Enter academic year"
-                            min="1"
                             required
-                        />
+                        >
+                            <option value="">Select Academic Year</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                            <option value="5">5th Year</option>
+                        </select>
 
                     </div>
 

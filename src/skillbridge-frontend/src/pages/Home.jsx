@@ -11,7 +11,7 @@ function Home() {
             <section className="hero-section">
                 <div className="hero-badge-wrap">
                     <span className="hero-badge">
-                        🎓 Dharmsinh Desai University • Peer Mentorship Network
+                        🎓 Peer Mentorship & Collaborative Learning Network
                     </span>
                 </div>
 
@@ -28,8 +28,8 @@ function Home() {
                 </h2>
 
                 <p className="hero-description">
-                    Connect directly with experienced senior peers at Dharmsinh Desai University. 
-                    Master technical concepts, tackle real-world projects, and accelerate your academic growth together.
+                    Connect directly with experienced senior peers and mentors. 
+                    Master technical concepts, tackle real-world projects, and accelerate your academic and professional growth together.
                 </p>
 
                 <div className="hero-buttons">
@@ -79,7 +79,7 @@ function Home() {
                 <div className="hero-stats-banner">
                     <div className="hero-stat-item">
                         <div className="hero-stat-number">100%</div>
-                        <div className="hero-stat-label">Campus Verified (@ddu.ac.in)</div>
+                        <div className="hero-stat-label">Verified Community</div>
                     </div>
                     <div className="hero-stat-item">
                         <div className="hero-stat-number">1-on-1</div>
@@ -164,8 +164,8 @@ function Home() {
 
                     <div className="feature-box">
                         <span className="feature-icon-badge">🛡️</span>
-                        <h3>Campus-Only Safety</h3>
-                        <p>Protected by DDU domain verification, secure password hashing, and active administrative moderation for a trusted environment.</p>
+                        <h3>Community Safety & Trust</h3>
+                        <p>Protected by secure authentication, password hashing, and active administrative moderation for a trusted learning environment.</p>
                     </div>
 
                     <div className="feature-box">
@@ -180,7 +180,7 @@ function Home() {
             <section className="home-section" style={{ paddingTop: 0 }}>
                 <div className="section-header">
                     <h2>Popular Mentorship Domains</h2>
-                    <p>Find peer guidance across all major computing and engineering tracks at DDU.</p>
+                    <p>Find peer guidance across all major computing and engineering tracks and technologies.</p>
                 </div>
 
                 <div className="topics-grid">
@@ -209,9 +209,9 @@ function Home() {
             {/* 5. Call To Action Banner */}
             <section className="cta-section">
                 <div className="cta-banner-box">
-                    <h2>Ready to Elevate Your Skills at DDU?</h2>
+                    <h2>Ready to Elevate Your Skills?</h2>
                     <p>
-                        Join hundreds of Dharmsinh Desai University students sharing knowledge, 
+                        Join hundreds of students and learners sharing knowledge, 
                         solving complex problems, and building their futures together.
                     </p>
 
@@ -222,7 +222,7 @@ function Home() {
                                     Join SkillBridge Now
                                 </Link>
                                 <Link to="/login" className="cta-btn-secondary">
-                                    Sign In with @ddu.ac.in
+                                    Sign In to SkillBridge
                                 </Link>
                             </>
                         ) : (
@@ -242,7 +242,7 @@ function Home() {
                 <div className="home-footer-inner">
                     <div className="home-footer-brand">
                         <h4>Skill<span style={{ color: "var(--accent)" }}>Bridge</span></h4>
-                        <p>Dharmsinh Desai University Peer-to-Peer Mentoring Platform</p>
+                        <p>Peer-to-Peer Mentoring and Collaborative Learning Platform</p>
                     </div>
 
                     <div className="home-footer-links">

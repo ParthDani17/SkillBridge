@@ -44,7 +44,7 @@ In academic environments, learning from senior or experienced peers is one of th
 
 SkillBridge eliminates these challenges by providing:
 
-- **Institutional Safety:** Enforces official college email verification (`@ddu.ac.in`) and administrator account audits.
+- **Account Safety:** Enforces email validation and administrator account audits.
 - **Categorized Skill Catalogs:** Standardized proficiency levels (`Beginner`, `Intermediate`, `Advanced`).
 - **Parametric Mentor Search:** Multi-parameter filtering by skill keyword, department, year, and minimum rating.
 - **Formal Request State Machine:** Managed lifecycle transitions (`Pending` -> `Accepted` / `Rejected` -> `Cancelled`).
@@ -57,7 +57,7 @@ SkillBridge eliminates these challenges by providing:
 ## Key Features by Role
 
 ### 1. Student (Learner)
-- **Institutional Registration:** Secure sign-up requiring an official college email (`@ddu.ac.in`) with profile picture upload.
+- **User Registration:** Secure sign-up with email validation and profile picture upload.
 - **Parametric Discovery:** Search peers by technical skill keyword, department, academic year, and minimum rating threshold.
 - **Top Mentors View:** Quickly identify top-rated peers on campus sorted by verified student reviews.
 - **Mentorship Requests:** Dispatch formal learning requests with personal learning objectives and notes.
@@ -85,7 +85,7 @@ SkillBridge eliminates these challenges by providing:
 SkillBridge coordinates the complete lifecycle of peer collaboration across 6 distinct phases:
 
 ### Phase 1: Authentication & Verification
-1. The student or mentor registers with their name, password, department, academic year, and an official `@ddu.ac.in` college email.
+1. The student or mentor registers with their name, email, password, department, and academic year.
 2. The password is encrypted using 10-round salted Bcrypt hashing.
 3. The user account is created with `isVerified: false`.
 4. The institutional Administrator inspects pending accounts on the Admin Dashboard and approves verification.
@@ -193,10 +193,10 @@ Notifications        LearningRequests (1) ────── (1) Sessions (1) �
 - **Users Collection:**
   - `_id`: Unique user identifier (ObjectId)
   - `name`: Full legal student name (String, required)
-  - `email`: College email ending with `@ddu.ac.in` (String, unique, lowercase)
+  - `email`: User email address (String, unique, lowercase, validated format)
   - `password`: Salted Bcrypt hash (String, required)
   - `department`: Academic branch e.g. CE, IT, EC (String, required)
-  - `academicYear`: Current year of study 1 to 4 (Number, required)
+  - `academicYear`: Current year of study 1 to 5 (Number, required, min: 1, max: 5)
   - `role`: Access role enum (`Student`, `Mentor`, `Administrator`)
   - `profilePicture`: Secure Cloudinary image URL (String)
   - `isVerified`: Institutional verification flag (Boolean, default: false)
@@ -526,7 +526,7 @@ For quick evaluation across all three platform roles:
 
 SkillBridge is backed by a formal verification suite of **36 System Test Cases** (`TC-01` to `TC-36`) covering functional requirements, security guards, and edge cases:
 
-- **Institutional Email Validation:** Registration strictly enforces `@ddu.ac.in` email domain; invalid domains are rejected with `HTTP 400 Bad Request`.
+- **Email Format Validation:** Registration strictly validates email format; invalid email formats are rejected with `HTTP 400 Bad Request`.
 - **RBAC Security Boundaries:** Verified that student tokens attempting to access `/api/v1/admin/*` endpoints strictly receive `HTTP 403 Forbidden`.
 - **Slot Collision & Double-Booking Prevention:** Backend actively queries active mentor schedules to reject overlapping session bookings with `HTTP 409 Conflict`.
 - **Integrity Constraints:** Prevents self-mentorship requests, blocks duplicate pending requests, and disallows reviews on uncompleted sessions.

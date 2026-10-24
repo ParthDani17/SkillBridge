@@ -5,6 +5,22 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
+const ALLOWED_DEPARTMENTS = [
+    "Computer Engineering",
+    "Information Technology",
+    "Electronics & Communication",
+    "Mechanical Engineering",
+    "Civil Engineering",
+    "Chemical Engineering",
+    "Electrical Engineering",
+    "Instrumentation & Control",
+    "Biomedical Engineering",
+    "Computer Applications (MCA/BCA)",
+    "Pharmacy",
+    "Management Studies",
+    "Other"
+];
+
 const registerUser = asyncHandler(async (req, res) => {
 
     const {
@@ -26,13 +42,22 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All required fields are required");
     }
 
-    const collegeEmailRegex = /^[a-zA-Z0-9._%+-]+@ddu\.ac\.in$/i;
-    if (!collegeEmailRegex.test(email.trim())) {
-        throw new ApiError(400, "Only official college email addresses (@ddu.ac.in) are allowed to register");
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+        throw new ApiError(400, "Please provide a valid email address");
     }
 
     if (password.length < 6) {
         throw new ApiError(400, "Password must be at least 6 characters long");
+    }
+
+    if (!ALLOWED_DEPARTMENTS.includes(department.trim())) {
+        throw new ApiError(400, "Please select a valid department from the provided options");
+    }
+
+    const yearNumber = Number(academicYear);
+    if (!Number.isInteger(yearNumber) || yearNumber < 1 || yearNumber > 5) {
+        throw new ApiError(400, "Academic year must be an integer between 1 and 5");
     }
 
     const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
@@ -54,7 +79,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email,
         password,
         department,
-        academicYear,
+        academicYear: yearNumber,
         role,
         profilePicture: profilePictureCloudinaryResponse?.secure_url || ""
     });

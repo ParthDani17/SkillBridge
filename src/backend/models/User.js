@@ -29,7 +29,9 @@ const userSchema = new mongoose.Schema(
 
         academicYear: {
             type: Number,
-            required: true
+            required: true,
+            min: [1, "Academic year must be at least 1"],
+            max: [5, "Academic year cannot exceed 5"]
         },
 
         role: {

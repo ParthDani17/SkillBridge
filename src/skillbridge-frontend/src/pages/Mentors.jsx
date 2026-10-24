@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { DEPARTMENTS } from "../constants/departments.js";
 
 function Mentors() {
     const [mentors, setMentors] = useState([]);
@@ -117,12 +118,11 @@ function Mentors() {
                                 onChange={(e) => setDepartment(e.target.value)}
                             >
                                 <option value="">All Departments</option>
-                                <option value="Computer Engineering">Computer Engineering</option>
-                                <option value="Information Technology">Information Technology</option>
-                                <option value="Electronics & Communication">Electronics & Communication</option>
-                                <option value="Mechanical Engineering">Mechanical Engineering</option>
-                                <option value="Civil Engineering">Civil Engineering</option>
-                                <option value="Chemical Engineering">Chemical Engineering</option>
+                                {DEPARTMENTS.map((dept) => (
+                                    <option key={dept} value={dept}>
+                                        {dept}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
@@ -138,6 +138,7 @@ function Mentors() {
                                 <option value="2">2nd Year</option>
                                 <option value="3">3rd Year</option>
                                 <option value="4">4th Year</option>
+                                <option value="5">5th Year</option>
                             </select>
                         </div>
 
