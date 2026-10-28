@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import Profile from "../models/Profile.js";
 import Skill from "../models/Skill.js";
 import Notification from "../models/Notification.js";
+import { sendNotification } from "../config/socket.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -121,7 +122,7 @@ const createLearningRequest = asyncHandler(async (req, res) => {
         message
     });
 
-    await Notification.create({
+    await sendNotification({
         userId: mentorId,
         message: "You have received a new learning request"
     });
@@ -211,7 +212,7 @@ const acceptLearningRequest = asyncHandler(async (req, res) => {
 
     await learningRequest.save();
 
-    await Notification.create({
+    await sendNotification({
         userId: learningRequest.studentId,
         message: "Your learning request has been accepted"
     });
@@ -269,7 +270,7 @@ const rejectLearningRequest = asyncHandler(async (req, res) => {
 
     await learningRequest.save();
 
-    await Notification.create({
+    await sendNotification({
         userId: learningRequest.studentId,
         message: "Your learning request has been rejected"
     });
@@ -327,7 +328,7 @@ const cancelLearningRequest = asyncHandler(async (req, res) => {
 
     await learningRequest.save();
 
-    await Notification.create({
+    await sendNotification({
         userId: learningRequest.mentorId,
         message: "A student has cancelled the learning request"
     });

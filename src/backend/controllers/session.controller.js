@@ -1,6 +1,7 @@
 import Session from "../models/Session.js";
 import LearningRequest from "../models/LearningRequest.js";
 import Notification from "../models/Notification.js";
+import { sendNotification } from "../config/socket.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -107,7 +108,7 @@ const createSession = asyncHandler(async (req, res) => {
         mode
     });
 
-    await Notification.create({
+    await sendNotification({
         userId: learningRequest.mentorId,
         message: "A new learning session has been scheduled"
     });
@@ -186,12 +187,12 @@ const completeSession = asyncHandler(async (req, res) => {
     await session.save();
 
     if (isStudent) {
-    await Notification.create({
-        userId: session.mentorId,
-        message: "A session has been completed by the student"
-    });
+        await sendNotification({
+            userId: session.mentorId,
+            message: "A session has been completed by the student"
+        });
     } else {
-        await Notification.create({
+        await sendNotification({
             userId: session.studentId,
             message: "A session has been completed by the mentor"
         });
@@ -244,12 +245,12 @@ const cancelSession = asyncHandler(async (req, res) => {
     await session.save();
 
     if (isStudent) {
-    await Notification.create({
-        userId: session.mentorId,
-        message: "The student has cancelled the session"
-    });
+        await sendNotification({
+            userId: session.mentorId,
+            message: "The student has cancelled the session"
+        });
     } else {
-        await Notification.create({
+        await sendNotification({
             userId: session.studentId,
             message: "The mentor has cancelled the session"
         });
@@ -337,12 +338,12 @@ const rescheduleSession = asyncHandler(async (req, res) => {
     await session.save();
 
     if (isStudent) {
-        await Notification.create({
+        await sendNotification({
             userId: session.mentorId,
             message: `A session has been rescheduled by the student to ${date} at ${time}`
         });
     } else {
-        await Notification.create({
+        await sendNotification({
             userId: session.studentId,
             message: `A session has been rescheduled by the mentor to ${date} at ${time}`
         });

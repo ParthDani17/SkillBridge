@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import Profile from "../models/Profile.js";
+import { sendNotification } from "../config/socket.js";
 
 const createReview = asyncHandler(async (req, res) => {
 
@@ -127,6 +128,11 @@ const createReview = asyncHandler(async (req, res) => {
     mentorProfile.totalReviews = mentorReviews.length;
 
     await mentorProfile.save();
+
+    await sendNotification({
+        userId: session.mentorId,
+        message: `You received a new ${rating}-star review from a student`
+    });
 
     return res.status(201).json(
         new ApiResponse(

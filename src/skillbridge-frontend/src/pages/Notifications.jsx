@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-
+import { useSocket } from "../context/SocketContext";
 import api from "../services/api";
 
 function Notifications() {
+    const { socket } = useSocket();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -11,6 +12,20 @@ function Notifications() {
     useEffect(() => {
         getNotifications();
     }, []);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleNewNotification = (newNotif) => {
+            setNotifications((prev) => [newNotif, ...prev]);
+        };
+
+        socket.on("notification:new", handleNewNotification);
+
+        return () => {
+            socket.off("notification:new", handleNewNotification);
+        };
+    }, [socket]);
 
     const getNotifications = async () => {
         setLoading(true);

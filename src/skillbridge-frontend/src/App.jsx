@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { AuthProvider } from "./context/AuthContext";
+import { SocketProvider } from "./context/SocketContext";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -29,10 +30,10 @@ function App() {
         <BrowserRouter>
 
             <AuthProvider>
+                <SocketProvider>
+                    <Navbar />
 
-                <Navbar />
-
-                <Routes>
+                    <Routes>
 
                     <Route
                         path="/"
@@ -138,8 +139,8 @@ function App() {
                         />
                     </Route>
 
-                </Routes>
-
+                    </Routes>
+                </SocketProvider>
             </AuthProvider>
 
         </BrowserRouter>

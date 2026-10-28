@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContext";
 import api from "../services/api";
 
 function Navbar() {
@@ -13,22 +14,41 @@ function Navbar() {
         logout
     } = useAuth();
 
+    const { socket } = useSocket();
     const [unreadCount, setUnreadCount] = useState(0);
 
-    useEffect(() => {
+    const fetchUnreadCount = () => {
         if (!isAuthenticated) {
             setUnreadCount(0);
             return;
         }
 
-        api.get("/notifications")
+        api.get("/notifications/my")
             .then((res) => {
                 const list = res.data?.data || [];
                 const unread = list.filter((n) => n.status === "unread").length;
                 setUnreadCount(unread);
             })
             .catch(() => {});
+    };
+
+    useEffect(() => {
+        fetchUnreadCount();
     }, [isAuthenticated, location.pathname]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleNewNotification = () => {
+            setUnreadCount((prev) => prev + 1);
+        };
+
+        socket.on("notification:new", handleNewNotification);
+
+        return () => {
+            socket.off("notification:new", handleNewNotification);
+        };
+    }, [socket]);
 
     const handleLogout = () => {
         logout();
