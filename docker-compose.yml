@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    container_name: skillbridge-backend
+    restart: always
+    env_file:
+      - ./src/backend/.env
+    ports:
+      - "5000:5000"
+    networks:
+      - skillbridge-network
+
+  frontend:
+    build:
+      context: ./src/skillbridge-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=/api/v1
+        - VITE_SOCKET_URL=/
+    container_name: skillbridge-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - skillbridge-network
+
+networks:
+  skillbridge-network:
+    driver: bridge
