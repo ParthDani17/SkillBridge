@@ -21,8 +21,13 @@ const getAllMentors = asyncHandler(async (req, res) => {
         proficiencyLevel,
         availability,
         minRating,
-        sortBy
+        sortBy,
+        page = 1,
+        limit = 12
     } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
 
     const userQuery = {
         role: "Mentor",
@@ -119,7 +124,21 @@ const getAllMentors = asyncHandler(async (req, res) => {
         .lean();
 
     if (!mentors.length) {
-        const response = new ApiResponse(200, [], "Mentors fetched successfully");
+        const response = new ApiResponse(
+            200,
+            {
+                mentors: [],
+                pagination: {
+                    totalMentors: 0,
+                    currentPage: pageNum,
+                    totalPages: 1,
+                    limit: limitNum,
+                    hasNextPage: false,
+                    hasPrevPage: false
+                }
+            },
+            "Mentors fetched successfully"
+        );
         response.executionTimeMs = Date.now() - startTime;
         return res.status(200).json(response);
     }
@@ -196,9 +215,24 @@ const getAllMentors = asyncHandler(async (req, res) => {
         );
     }
 
+    const totalMentors = mentorData.length;
+    const totalPages = Math.ceil(totalMentors / limitNum) || 1;
+    const startIndex = (pageNum - 1) * limitNum;
+    const paginatedMentors = mentorData.slice(startIndex, startIndex + limitNum);
+
     const response = new ApiResponse(
         200,
-        mentorData,
+        {
+            mentors: paginatedMentors,
+            pagination: {
+                totalMentors,
+                currentPage: pageNum,
+                totalPages,
+                limit: limitNum,
+                hasNextPage: pageNum < totalPages,
+                hasPrevPage: pageNum > 1
+            }
+        },
         "Mentors fetched successfully"
     );
     response.executionTimeMs = Date.now() - startTime;

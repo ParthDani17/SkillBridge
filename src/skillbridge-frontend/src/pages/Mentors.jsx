@@ -14,10 +14,18 @@ function Mentors() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        totalMentors: 0,
+        currentPage: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false
+    });
 
     useEffect(() => {
-        fetchMentors();
-    }, []);
+        fetchMentors({ page });
+    }, [page]);
 
     const fetchMentors = async (customFilters = {}) => {
         setLoading(true);
@@ -31,6 +39,7 @@ function Mentors() {
                 availability,
                 minRating,
                 sortBy: isTopMentors ? "rating" : undefined,
+                page,
                 ...customFilters
             };
 
@@ -41,9 +50,19 @@ function Mentors() {
             if (activeFilters.availability) params.availability = activeFilters.availability;
             if (activeFilters.minRating) params.minRating = activeFilters.minRating;
             if (activeFilters.sortBy) params.sortBy = activeFilters.sortBy;
+            params.page = activeFilters.page || 1;
+            params.limit = 12;
 
             const response = await api.get("/mentors", { params });
-            setMentors(response.data.data || []);
+            const data = response.data.data;
+            if (data?.mentors) {
+                setMentors(data.mentors);
+                if (data.pagination) setPagination(data.pagination);
+            } else if (Array.isArray(data)) {
+                setMentors(data);
+            } else {
+                setMentors([]);
+            }
         } catch (error) {
             console.error(
                 "Error fetching mentors:",
@@ -296,6 +315,58 @@ function Mentors() {
                             </div>
                         ))
                     )}
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {pagination.totalPages > 1 && (
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "12px",
+                        marginTop: "30px",
+                        padding: "16px 0"
+                    }}
+                >
+                    <button
+                        type="button"
+                        disabled={!pagination.hasPrevPage}
+                        onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                        style={{
+                            padding: "8px 16px",
+                            borderRadius: "6px",
+                            border: "1px solid var(--border-divider)",
+                            backgroundColor: pagination.hasPrevPage ? "var(--bg-white)" : "var(--bg-muted)",
+                            color: pagination.hasPrevPage ? "var(--primary-dark)" : "var(--secondary)",
+                            cursor: pagination.hasPrevPage ? "pointer" : "not-allowed",
+                            fontWeight: 600
+                        }}
+                    >
+                        ← Previous
+                    </button>
+
+                    <span style={{ fontSize: "14px", color: "var(--primary-dark)" }}>
+                        Page <strong>{pagination.currentPage}</strong> of <strong>{pagination.totalPages}</strong> ({pagination.totalMentors} mentors)
+                    </span>
+
+                    <button
+                        type="button"
+                        disabled={!pagination.hasNextPage}
+                        onClick={() => setPage((prev) => prev + 1)}
+                        style={{
+                            padding: "8px 16px",
+                            borderRadius: "6px",
+                            border: "1px solid var(--border-divider)",
+                            backgroundColor: pagination.hasNextPage ? "var(--bg-white)" : "var(--bg-muted)",
+                            color: pagination.hasNextPage ? "var(--primary-dark)" : "var(--secondary)",
+                            cursor: pagination.hasNextPage ? "pointer" : "not-allowed",
+                            fontWeight: 600
+                        }}
+                    >
+                        Next →
+                    </button>
                 </div>
             )}
         </div>
