@@ -3,14 +3,18 @@ import {registerUser,loginUser,logoutUser,refreshAccessToken,getCurrentUser} fro
 import {upload} from "../middlewares/multer.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
 const router = Router();
 
-router.route("/register").post(upload.fields([
-    {name: "profilePicture", maxCount: 1}
+router.route("/register").post(
+    authLimiter,
+    upload.fields([
+        {name: "profilePicture", maxCount: 1}
     ]),
-    registerUser);
+    registerUser
+);
 
-router.route("/login").post(loginUser);
+router.route("/login").post(authLimiter, loginUser);
 
 router.route("/test-auth").get(
     verifyJWT,

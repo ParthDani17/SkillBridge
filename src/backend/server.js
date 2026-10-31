@@ -50,6 +50,9 @@ connectDB()
     process.exit(1);
 });
 
+import { apiLimiter } from "./middlewares/rateLimiter.middleware.js";
+app.use("/api", apiLimiter);
+
 import userRouter from "./routes/user.routes.js";
 app.use("/api/v1/users", userRouter);
 
