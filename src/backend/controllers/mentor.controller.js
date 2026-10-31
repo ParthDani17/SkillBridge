@@ -9,6 +9,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 const getAllMentors = asyncHandler(async (req, res) => {
+    const startTime = Date.now();
 
     const {
         search,
@@ -114,51 +115,77 @@ const getAllMentors = asyncHandler(async (req, res) => {
     }
 
     const mentors = await User.find(userQuery)
-        .select("-password -refreshToken");
+        .select("-password -refreshToken")
+        .lean();
 
+    if (!mentors.length) {
+        const response = new ApiResponse(200, [], "Mentors fetched successfully");
+        response.executionTimeMs = Date.now() - startTime;
+        return res.status(200).json(response);
+    }
+
+    const mentorIds = mentors.map((m) => m._id);
+
+    // 1. Batch fetch all profiles for these mentors in ONE single query
+    const profileQuery = { userId: { $in: mentorIds } };
+    if (availability) {
+        profileQuery.availability = { $regex: availability, $options: "i" };
+    }
+    if (minRating) {
+        profileQuery.averageRating = { $gte: Number(minRating) };
+    }
+
+    const profiles = await Profile.find(profileQuery).lean();
+    const profileMap = new Map();
+    const profileIds = [];
+
+    for (const p of profiles) {
+        profileMap.set(p.userId.toString(), p);
+        profileIds.push(p._id);
+    }
+
+    // 2. Batch fetch all skills for these profiles in ONE single query
+    const skills = profileIds.length
+        ? await Skill.find({ profileId: { $in: profileIds } }).lean()
+        : [];
+
+    const skillsMap = new Map();
+    for (const s of skills) {
+        const pid = s.profileId.toString();
+        if (!skillsMap.has(pid)) skillsMap.set(pid, []);
+        skillsMap.get(pid).push(s);
+    }
+
+    // 3. Batch count reviews in ONE single aggregation pipeline
+    const reviewCounts = await Review.aggregate([
+        { $match: { mentorId: { $in: mentorIds } } },
+        { $group: { _id: "$mentorId", count: { $sum: 1 } } }
+    ]);
+    const reviewCountMap = new Map(
+        reviewCounts.map((rc) => [rc._id.toString(), rc.count])
+    );
+
+    // Assemble final mentor objects in memory with 0 extra queries
     let mentorData = [];
-
     for (const mentor of mentors) {
-        const profileQuery = {
-            userId: mentor._id
-        };
+        const mentorIdStr = mentor._id.toString();
+        const profile = profileMap.get(mentorIdStr);
 
-        if (availability) {
-            profileQuery.availability = {
-                $regex: availability,
-                $options: "i"
-            };
-        }
-
-        if (minRating) {
-            profileQuery.averageRating = {
-                $gte: Number(minRating)
-            };
-        }
-
-        const profile = await Profile.findOne(profileQuery);
-
+        // If filtering by availability or rating and profile didn't match, skip
         if ((availability || minRating) && !profile) {
             continue;
         }
 
-        const skills = profile
-            ? await Skill.find({
-                profileId: profile._id
-            })
-            : [];
-
-        const totalReviews = await Review.countDocuments({
-            mentorId: mentor._id
-        });
-
-        const profileObj = profile ? profile.toObject() : {};
+        const profileObj = profile ? { ...profile } : {};
+        const totalReviews = reviewCountMap.get(mentorIdStr) || 0;
         profileObj.totalReviews = totalReviews;
+
+        const mentorSkills = profile?._id ? (skillsMap.get(profile._id.toString()) || []) : [];
 
         mentorData.push({
             mentor,
             profile: profileObj,
-            skills,
+            skills: mentorSkills,
             totalReviews
         });
     }
@@ -169,13 +196,14 @@ const getAllMentors = asyncHandler(async (req, res) => {
         );
     }
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            mentorData,
-            "Mentors fetched successfully"
-        )
+    const response = new ApiResponse(
+        200,
+        mentorData,
+        "Mentors fetched successfully"
     );
+    response.executionTimeMs = Date.now() - startTime;
+
+    return res.status(200).json(response);
 });
 
 const getMentorById = asyncHandler(async (req, res) => {

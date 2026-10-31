@@ -47,6 +47,9 @@ const sessionSchema = new mongoose.Schema(
     }
 );
 
+sessionSchema.index({ mentorId: 1, date: 1, time: 1, status: 1 });
+sessionSchema.index({ studentId: 1, status: 1 });
+
 const Session = mongoose.model("Session", sessionSchema);
 
 export default Session;

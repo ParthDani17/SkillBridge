@@ -97,6 +97,9 @@ userSchema.methods.generateRefreshToken = function () {
     );
 };
 
+// Compound indexes for mentor discovery, authentication and filters
+userSchema.index({ role: 1, accountStatus: 1, department: 1, academicYear: 1 });
+
 const User = mongoose.model("User", userSchema);
 
 export default User;

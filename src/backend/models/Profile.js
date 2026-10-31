@@ -49,6 +49,8 @@ const profileSchema = new mongoose.Schema(
     }
 );
 
+profileSchema.index({ averageRating: -1, totalReviews: -1 });
+
 const Profile = mongoose.model("Profile", profileSchema);
 
 export default Profile;
