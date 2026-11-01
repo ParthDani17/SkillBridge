@@ -1,14 +1,29 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: skillbridge-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - skillbridge-network
+    volumes:
+      - redis-data:/data
+
   backend:
     build:
       context: ./src/backend
       dockerfile: Dockerfile
     container_name: skillbridge-backend
     restart: always
+    environment:
+      - REDIS_URL=redis://redis:6379
     env_file:
       - ./src/backend/.env
     ports:
       - "5000:5000"
+    depends_on:
+      - redis
     networks:
       - skillbridge-network
 
@@ -27,6 +42,9 @@ services:
       - backend
     networks:
       - skillbridge-network
+
+volumes:
+  redis-data:
 
 networks:
   skillbridge-network:

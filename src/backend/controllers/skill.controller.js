@@ -3,6 +3,7 @@ import Profile from "../models/Profile.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { clearCachePattern } from "../config/redis.js";
 
 const addSkill = asyncHandler(async (req, res) => {
 
@@ -36,6 +37,9 @@ const addSkill = asyncHandler(async (req, res) => {
         category,
         proficiencyLevel
     });
+
+    await clearCachePattern("mentors:*");
+    await clearCachePattern(`mentor:${req.user._id}*`);
 
     return res.status(201).json(
         new ApiResponse(
@@ -105,6 +109,9 @@ const updateSkill = asyncHandler(async (req, res) => {
 
     await skill.save();
 
+    await clearCachePattern("mentors:*");
+    await clearCachePattern(`mentor:${req.user._id}*`);
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -139,6 +146,9 @@ const deleteSkill = asyncHandler(async (req, res) => {
     }
 
     await Skill.findByIdAndDelete(req.params.id);
+
+    await clearCachePattern("mentors:*");
+    await clearCachePattern(`mentor:${req.user._id}*`);
 
     return res.status(200).json(
         new ApiResponse(

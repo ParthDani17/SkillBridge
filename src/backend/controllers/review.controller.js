@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import Profile from "../models/Profile.js";
 import { sendNotification } from "../config/socket.js";
+import { getCache, setCache, clearCachePattern } from "../config/redis.js";
 
 const createReview = asyncHandler(async (req, res) => {
 
@@ -129,6 +130,11 @@ const createReview = asyncHandler(async (req, res) => {
 
     await mentorProfile.save();
 
+    // Invalidate Redis caches so reviews, average rating & counts reflect instantly
+    await clearCachePattern(`reviews:${session.mentorId}*`);
+    await clearCachePattern(`mentor:${session.mentorId}*`);
+    await clearCachePattern("mentors:*");
+
     await sendNotification({
         userId: session.mentorId,
         message: `You received a new ${rating}-star review from a student`
@@ -144,8 +150,24 @@ const createReview = asyncHandler(async (req, res) => {
 });
 
 const getMentorReviews = asyncHandler(async (req, res) => {
-
+    const startTime = Date.now();
     const { mentorId } = req.params;
+    const cacheKey = `reviews:${mentorId}`;
+
+    // 1. Check Redis cache first
+    const cachedReviews = await getCache(cacheKey);
+    if (cachedReviews) {
+        const response = new ApiResponse(
+            200,
+            cachedReviews,
+            "Mentor reviews fetched successfully (from Redis cache)"
+        );
+        response.cached = true;
+        response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+        return res.status(200).json(response);
+    }
 
     const reviews = await Review.find({
         mentorId
@@ -156,15 +178,23 @@ const getMentorReviews = asyncHandler(async (req, res) => {
         )
         .sort({
             createdAt: -1
-        });
+        })
+        .lean();
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            reviews,
-            "Mentor reviews fetched successfully"
-        )
+    // Cache reviews for 300s (5 minutes)
+    await setCache(cacheKey, reviews, 300);
+
+    const response = new ApiResponse(
+        200,
+        reviews,
+        "Mentor reviews fetched successfully"
     );
+    response.cached = false;
+    response.executionTimeMs = Date.now() - startTime;
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+
+    return res.status(200).json(response);
 });
 
 const getMyReviews = asyncHandler(async (req, res) => {
@@ -246,6 +276,11 @@ const deleteReview = asyncHandler(async (req, res) => {
         mentorProfile.totalReviews = mentorReviews.length;
         await mentorProfile.save();
     }
+
+    // Invalidate Redis caches
+    await clearCachePattern(`reviews:${mentorId}*`);
+    await clearCachePattern(`mentor:${mentorId}*`);
+    await clearCachePattern("mentors:*");
 
     return res.status(200).json(
         new ApiResponse(

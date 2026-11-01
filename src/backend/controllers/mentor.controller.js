@@ -6,6 +6,7 @@ import Review from "../models/Review.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { getCache, setCache } from "../config/redis.js";
 
 
 const getAllMentors = asyncHandler(async (req, res) => {
@@ -28,6 +29,37 @@ const getAllMentors = asyncHandler(async (req, res) => {
 
     const pageNum = Math.max(1, parseInt(page, 10) || 1);
     const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 12));
+
+    // Construct deterministic Redis cache key based on query filters & pagination
+    const cacheKey = `mentors:${JSON.stringify({
+        search: (search || "").trim(),
+        skill: (skill || "").trim(),
+        name: (name || "").trim(),
+        department: (department || "").trim(),
+        academicYear: academicYear ? Number(academicYear) : "",
+        category: (category || "").trim(),
+        proficiencyLevel: (proficiencyLevel || "").trim(),
+        availability: (availability || "").trim(),
+        minRating: minRating ? Number(minRating) : "",
+        sortBy: (sortBy || "").trim(),
+        page: pageNum,
+        limit: limitNum
+    })}`;
+
+    // 1. Try reading from Redis cache first
+    const cachedResult = await getCache(cacheKey);
+    if (cachedResult) {
+        const response = new ApiResponse(
+            200,
+            cachedResult,
+            "Mentors fetched successfully (from Redis cache)"
+        );
+        response.cached = true;
+        response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+        return res.status(200).json(response);
+    }
 
     const userQuery = {
         role: "Mentor",
@@ -124,22 +156,30 @@ const getAllMentors = asyncHandler(async (req, res) => {
         .lean();
 
     if (!mentors.length) {
+        const payload = {
+            mentors: [],
+            pagination: {
+                totalMentors: 0,
+                currentPage: pageNum,
+                totalPages: 1,
+                limit: limitNum,
+                hasNextPage: false,
+                hasPrevPage: false
+            }
+        };
+
+        // Cache empty result briefly (30s) to absorb repeated misses
+        await setCache(cacheKey, payload, 30);
+
         const response = new ApiResponse(
             200,
-            {
-                mentors: [],
-                pagination: {
-                    totalMentors: 0,
-                    currentPage: pageNum,
-                    totalPages: 1,
-                    limit: limitNum,
-                    hasNextPage: false,
-                    hasPrevPage: false
-                }
-            },
+            payload,
             "Mentors fetched successfully"
         );
+        response.cached = false;
         response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "MISS");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
         return res.status(200).json(response);
     }
 
@@ -220,32 +260,57 @@ const getAllMentors = asyncHandler(async (req, res) => {
     const startIndex = (pageNum - 1) * limitNum;
     const paginatedMentors = mentorData.slice(startIndex, startIndex + limitNum);
 
+    const payload = {
+        mentors: paginatedMentors,
+        pagination: {
+            totalMentors,
+            currentPage: pageNum,
+            totalPages,
+            limit: limitNum,
+            hasNextPage: pageNum < totalPages,
+            hasPrevPage: pageNum > 1
+        }
+    };
+
+    // Store in Redis with 120s TTL
+    await setCache(cacheKey, payload, 120);
+
     const response = new ApiResponse(
         200,
-        {
-            mentors: paginatedMentors,
-            pagination: {
-                totalMentors,
-                currentPage: pageNum,
-                totalPages,
-                limit: limitNum,
-                hasNextPage: pageNum < totalPages,
-                hasPrevPage: pageNum > 1
-            }
-        },
+        payload,
         "Mentors fetched successfully"
     );
+    response.cached = false;
     response.executionTimeMs = Date.now() - startTime;
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
 
     return res.status(200).json(response);
 });
 
 const getMentorById = asyncHandler(async (req, res) => {
+    const startTime = Date.now();
+    const cacheKey = `mentor:${req.params.id}`;
+
+    // 1. Check Redis cache
+    const cachedMentor = await getCache(cacheKey);
+    if (cachedMentor) {
+        const response = new ApiResponse(
+            200,
+            cachedMentor,
+            "Mentor fetched successfully (from Redis cache)"
+        );
+        response.cached = true;
+        response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+        return res.status(200).json(response);
+    }
 
     const mentor = await User.findOne({
         _id: req.params.id,
         role: "Mentor"
-    }).select("-password -refreshToken");
+    }).select("-password -refreshToken").lean();
 
     if (!mentor) {
         throw new ApiError(
@@ -256,33 +321,42 @@ const getMentorById = asyncHandler(async (req, res) => {
 
     const profile = await Profile.findOne({
         userId: mentor._id
-    });
+    }).lean();
 
     const totalReviews = await Review.countDocuments({
         mentorId: mentor._id
     });
 
-    const profileObj = profile ? profile.toObject() : {};
+    const profileObj = profile ? { ...profile } : {};
     profileObj.totalReviews = totalReviews;
 
     const skills = profile
         ? await Skill.find({
             profileId: profile._id
-        })
+        }).lean()
         : [];
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                mentor,
-                profile: profileObj,
-                skills,
-                totalReviews
-            },
-            "Mentor fetched successfully"
-        )
+    const payload = {
+        mentor,
+        profile: profileObj,
+        skills,
+        totalReviews
+    };
+
+    // Cache mentor profile for 300s (5 min)
+    await setCache(cacheKey, payload, 300);
+
+    const response = new ApiResponse(
+        200,
+        payload,
+        "Mentor fetched successfully"
     );
+    response.cached = false;
+    response.executionTimeMs = Date.now() - startTime;
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+
+    return res.status(200).json(response);
 });
 
 

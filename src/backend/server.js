@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import http from "http";
 import connectDB from "./config/db.js";
+import "./config/redis.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { initSocket } from "./config/socket.js";

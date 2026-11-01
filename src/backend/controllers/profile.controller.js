@@ -11,6 +11,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { clearCachePattern } from "../config/redis.js";
 
 const getProfile = asyncHandler(async (req, res) => {
 
@@ -131,6 +132,10 @@ const updateProfile = asyncHandler(async (req, res) => {
 
         await profile.save();
     }
+
+    // Invalidate Redis cache so mentor list & profile reflect updates immediately
+    await clearCachePattern("mentors:*");
+    await clearCachePattern(`mentor:${req.user._id}*`);
 
     return res.status(200).json(
         new ApiResponse(

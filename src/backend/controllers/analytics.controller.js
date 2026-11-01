@@ -7,14 +7,31 @@ import Review from "../models/Review.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { getCache, setCache } from "../config/redis.js";
 
 const getUserStatistics = asyncHandler(async (req, res) => {
+    const startTime = Date.now();
 
     if (req.user.role !== "Administrator") {
         throw new ApiError(
             403,
             "Only administrators can view analytics"
         );
+    }
+
+    const cacheKey = "analytics:user-statistics";
+    const cachedStats = await getCache(cacheKey);
+    if (cachedStats) {
+        const response = new ApiResponse(
+            200,
+            cachedStats,
+            "User statistics fetched successfully (from Redis cache)"
+        );
+        response.cached = true;
+        response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+        return res.status(200).json(response);
     }
 
     const totalUsers = await User.countDocuments();
@@ -61,33 +78,57 @@ const getUserStatistics = asyncHandler(async (req, res) => {
         }
     });
 
+    const payload = {
+        totalUsers,
+        totalStudents,
+        totalMentors,
+        totalAdministrators,
+        verifiedUsers,
+        unverifiedUsers,
+        activeUsers,
+        suspendedUsers,
+        newUsersLast30Days
+    };
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                totalUsers,
-                totalStudents,
-                totalMentors,
-                totalAdministrators,
-                verifiedUsers,
-                unverifiedUsers,
-                activeUsers,
-                suspendedUsers,
-                newUsersLast30Days
-            },
-            "User statistics fetched successfully"
-        )
+    // Cache analytics for 300s (5 minutes)
+    await setCache(cacheKey, payload, 300);
+
+    const response = new ApiResponse(
+        200,
+        payload,
+        "User statistics fetched successfully"
     );
+    response.cached = false;
+    response.executionTimeMs = Date.now() - startTime;
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+
+    return res.status(200).json(response);
 });
 
 const getPopularSkills = asyncHandler(async (req, res) => {
+    const startTime = Date.now();
 
     if (req.user.role !== "Administrator") {
         throw new ApiError(
             403,
             "Only administrators can view analytics"
         );
+    }
+
+    const cacheKey = "analytics:popular-skills";
+    const cachedSkills = await getCache(cacheKey);
+    if (cachedSkills) {
+        const response = new ApiResponse(
+            200,
+            cachedSkills,
+            "Popular skills fetched successfully (from Redis cache)"
+        );
+        response.cached = true;
+        response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+        return res.status(200).json(response);
     }
 
     const popularSkills =
@@ -140,17 +181,24 @@ const getPopularSkills = asyncHandler(async (req, res) => {
 
         ]);
 
+    // Cache for 300s (5 minutes)
+    await setCache(cacheKey, popularSkills, 300);
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            popularSkills,
-            "Popular skills fetched successfully"
-        )
+    const response = new ApiResponse(
+        200,
+        popularSkills,
+        "Popular skills fetched successfully"
     );
+    response.cached = false;
+    response.executionTimeMs = Date.now() - startTime;
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+
+    return res.status(200).json(response);
 });
 
 const getPlatformActivity = asyncHandler(async (req, res) => {
+    const startTime = Date.now();
 
     if (req.user.role !== "Administrator") {
         throw new ApiError(
@@ -159,6 +207,20 @@ const getPlatformActivity = asyncHandler(async (req, res) => {
         );
     }
 
+    const cacheKey = "analytics:platform-activity";
+    const cachedActivity = await getCache(cacheKey);
+    if (cachedActivity) {
+        const response = new ApiResponse(
+            200,
+            cachedActivity,
+            "Platform activity fetched successfully (from Redis cache)"
+        );
+        response.cached = true;
+        response.executionTimeMs = Date.now() - startTime;
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+        return res.status(200).json(response);
+    }
 
     const totalLearningRequests =
         await LearningRequest.countDocuments();
@@ -229,34 +291,42 @@ const getPlatformActivity = asyncHandler(async (req, res) => {
             )
             : 0;
 
+    const payload = {
+        learningRequests: {
+            total: totalLearningRequests,
+            pending: pendingRequests,
+            accepted: acceptedRequests,
+            rejected: rejectedRequests,
+            cancelled: cancelledRequests
+        },
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                learningRequests: {
-                    total: totalLearningRequests,
-                    pending: pendingRequests,
-                    accepted: acceptedRequests,
-                    rejected: rejectedRequests,
-                    cancelled: cancelledRequests
-                },
+        sessions: {
+            total: totalSessions,
+            scheduled: scheduledSessions,
+            completed: completedSessions,
+            cancelled: cancelledSessions
+        },
 
-                sessions: {
-                    total: totalSessions,
-                    scheduled: scheduledSessions,
-                    completed: completedSessions,
-                    cancelled: cancelledSessions
-                },
+        reviews: {
+            total: totalReviews,
+            averageRating
+        }
+    };
 
-                reviews: {
-                    total: totalReviews,
-                    averageRating
-                }
-            },
-            "Platform activity fetched successfully"
-        )
+    // Cache for 300s (5 minutes)
+    await setCache(cacheKey, payload, 300);
+
+    const response = new ApiResponse(
+        200,
+        payload,
+        "Platform activity fetched successfully"
     );
+    response.cached = false;
+    response.executionTimeMs = Date.now() - startTime;
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("X-Response-Time", `${response.executionTimeMs}ms`);
+
+    return res.status(200).json(response);
 });
 
 
